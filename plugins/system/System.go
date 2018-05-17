@@ -33,6 +33,8 @@ func system(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 			NewStatus: true}
 		model.DB.Where("nick_name = ? AND tarot_nick_name = ?", myContact.NickName, model.AppBot.Bot.NickName).
 			First(&myContact)
+		model.AppBot.Cm.AddUser(&wxweb.User{NickName: msg.RecommendInfo.NickName,
+			UserName: msg.RecommendInfo.UserName, City: msg.RecommendInfo.City, Sex: msg.RecommendInfo.Sex})
 		logs.Info("accept user apply with name of %s", myContact.NickName)
 		if model.DB.NewRecord(&myContact) {
 			myContact.TarotStatus = 3

@@ -9,6 +9,7 @@ import (
 	"github.com/songtianyi/rrframework/logs"
 	"math/rand"
 	"time"
+	"tarot/util"
 )
 
 // register plugin
@@ -56,7 +57,7 @@ func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 				contact.NickName, model.AppBot.Bot.NickName).
 				Update(map[string]interface{}{"tarot_status": 7, "new_status": true})
 		} else {
-			model.AppBot.SendText(model.TalkShare[1], model.AppBot.Bot.NickName, contact.UserName)
+			util.SendTarotText(`no_share`, 0, model.AppBot.Bot.NickName, contact.UserName)
 			time.Sleep(10 * time.Second)
 		}
 	case 10:

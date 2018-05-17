@@ -5,8 +5,8 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 
-	"tarot/wechat-go/wxweb"
 	"tarot/model"
+	"tarot/wechat-go/wxweb"
 	"tarot/plugins/system"
 	"tarot/plugins/tarot"
 	"tarot/function"
@@ -38,6 +38,7 @@ func main() {
 	}
 	defer model.DB.Close()
 	model.DB.AutoMigrate(&model.MyContact{})
+	model.DB.AutoMigrate(&model.TarotSentence{})
 
 	go function.ProcessLogin()
 	model.AppBot.SetAfterLogin(func() (err error) {

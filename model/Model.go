@@ -5,6 +5,15 @@ import (
 	"tarot/wechat-go/wxweb"
 )
 
+type TarotSentence struct {
+	ID               uint `gorm:"primary_key"`
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
+	Content          string
+	SentenceType     string
+	SentenceScenario int
+}
+
 type TarotEvent struct {
 	NickName      string
 	TarotStatus   int
