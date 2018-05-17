@@ -95,6 +95,8 @@ type Session struct {
 	LastMsgID       string
 	Api             *ApiV2
 	AfterLogin      func() error
+	UploadPathId    map[string]string     // uploadPath - mediaId
+	UploadPathTime  map[string]*time.Time // uploadPath - upload time
 }
 
 // CreateSession: create wechat bot session
@@ -148,46 +150,46 @@ func CreateSession(common *Common, handlerRegister *HandlerRegister, qrmode int)
 	}
 	return session, nil
 }
-func CreateWebSessionWithPath(common *Common, handlerRegister *HandlerRegister, qrcode_path string) (*Session, error) {
-	if common == nil {
-		common = DefaultCommon
-	}
-
-	wxWebXcg := &XmlConfig{}
-	api := NewApiV2()
-
-	// get qrcode
-	uuid, err := JsLogin(common)
-	if err != nil {
-		return nil, err
-	}
-	logs.Info(uuid)
-	session := &Session{
-		WxWebCommon: common,
-		WxWebXcg:    wxWebXcg,
-		QrcodeUUID:  uuid,
-		CreateTime:  time.Now().Unix(),
-		Api:         api,
-	}
-
-	if handlerRegister != nil {
-		session.HandlerRegister = handlerRegister
-	} else {
-		session.HandlerRegister = CreateHandlerRegister()
-	}
-
-	qrcb, err := api.QrCode(common, uuid)
-	if err != nil {
-		return nil, err
-	}
-	ls := rrstorage.CreateLocalDiskStorage(qrcode_path)
-	if err := ls.Save(qrcb, uuid+".jpg"); err != nil {
-		return nil, err
-	}
-	session.QrcodePath = uuid + ".jpg"
-	logs.Info("QrcodePath: %s", session.QrcodePath)
-	return session, nil
-}
+//func CreateWebSessionWithPath(common *Common, handlerRegister *HandlerRegister, qrcode_path string) (*Session, error) {
+//	if common == nil {
+//		common = DefaultCommon
+//	}
+//
+//	wxWebXcg := &XmlConfig{}
+//	api := NewApiV2()
+//
+//	// get qrcode
+//	uuid, err := JsLogin(common)
+//	if err != nil {
+//		return nil, err
+//	}
+//	logs.Info(uuid)
+//	session := &Session{
+//		WxWebCommon: common,
+//		WxWebXcg:    wxWebXcg,
+//		QrcodeUUID:  uuid,
+//		CreateTime:  time.Now().Unix(),
+//		Api:         api,
+//	}
+//
+//	if handlerRegister != nil {
+//		session.HandlerRegister = handlerRegister
+//	} else {
+//		session.HandlerRegister = CreateHandlerRegister()
+//	}
+//
+//	qrcb, err := api.QrCode(common, uuid)
+//	if err != nil {
+//		return nil, err
+//	}
+//	ls := rrstorage.CreateLocalDiskStorage(qrcode_path)
+//	if err := ls.Save(qrcb, uuid+".jpg"); err != nil {
+//		return nil, err
+//	}
+//	session.QrcodePath = uuid + ".jpg"
+//	logs.Info("QrcodePath: %s", session.QrcodePath)
+//	return session, nil
+//}
 
 func (s *Session) analizeVersion(uri string) {
 	u, _ := url.Parse(uri)
@@ -494,16 +496,37 @@ func (s *Session) SendText(msg, from, to string) (string, string, error) {
 	return msgID, localID, nil
 }
 
-// SendImg: send img, upload then send
+func (s *Session) getMediaFromPath(path string) (mediaId string) {
+	if s.UploadPathTime == nil {
+		s.UploadPathTime = make(map[string]*time.Time)
+	}
+	if s.UploadPathId == nil {
+		s.UploadPathId = make(map[string]string)
+	}
+	uploadTime := s.UploadPathTime[path]
+	if uploadTime == nil || time.Now().Unix()-uploadTime.Unix() > 3600 {
+		return ``
+	} else {
+		return s.UploadPathId[path]
+	}
+}
+
 func (s *Session) SendFile(path, from, to string) {
 	ss := strings.Split(path, "/")
 	buf, err := ioutil.ReadFile(path)
-	if err != nil {
-		logs.Error(err)
-		return
+	mediaId := s.getMediaFromPath(path)
+	if mediaId == `` {
+		if err != nil {
+			logs.Error(err)
+			return
+		}
+		mediaId, err = s.Api.WebWxUploadMedia(s.WxWebCommon, s.WxWebXcg, s.GetCookies(), ss[len(ss)-1], buf, from, to)
+		s.UploadPathId[path] = mediaId
+		now := time.Now()
+		s.UploadPathTime[path] = &now
+	} else {
+		fmt.Printf("================================== reuse uploaded media %s", mediaId)
 	}
-	mediaId, err := s.Api.WebWxUploadMedia(s.WxWebCommon, s.WxWebXcg, s.GetCookies(), ss[len(ss)-1], buf, from, to)
-	fmt.Println("==================================================================" + mediaId)
 	var msg Msg
 	kind, _ := filetype.Get(buf)
 	if filetype.IsImage(buf) {

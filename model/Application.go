@@ -6,8 +6,7 @@ import (
 )
 
 //TODO
-// 1. 视频和图片缓存
-// 2. 可能新加好友无法测试
+// 可能新加好友无法测试
 
 //1 通过好友 3
 var AppBot *wxweb.Session
@@ -15,5 +14,6 @@ var DB *gorm.DB
 
 var SendChannel = make(chan TarotEvent, 10)
 
-//const DBConnection = "host=47.254.45.236 port=5432 user=crook dbname=tarot password=zaq12WSX sslmode=disable"
+// const DBConnection = "host=47.254.45.236 port=5432 user=crook dbname=tarot password=zaq12WSX sslmode=disable"
+
 const DBConnection = "host=172.20.48.174 port=5432 user=crook dbname=tarot password=zaq12WSX sslmode=disable"
