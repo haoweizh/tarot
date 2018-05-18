@@ -352,6 +352,15 @@ func (api *ApiV2) WebWxSendFile(common *Common, ce *XmlConfig, cookies []*http.C
 
 	//uri := common.CgiUrl + "/webwxsendmsgimg?" + km.Encode()
 	uri := fmt.Sprintf(`%s/%s?%s`, common.CgiUrl, message.Path(), km.Encode())
+	msg := &MediaMessage{
+		Type:         message.MessageType(),
+		Content:      "",
+		FromUserName: from,
+		ToUserName:   to,
+		LocalID:      int(time.Now().Unix() * 1e4),
+		ClientMsgId:  int(time.Now().Unix() * 1e4),
+		EmojiFlag:    2,
+		MediaId:      media,}
 	js := InitReqBody{
 		BaseRequest: &BaseRequest{
 			ce.Wxuin,
@@ -359,15 +368,7 @@ func (api *ApiV2) WebWxSendFile(common *Common, ce *XmlConfig, cookies []*http.C
 			ce.Skey,
 			common.DeviceID,
 		},
-		Msg: &MediaMessage{
-			Type:         3,
-			Content:      "",
-			FromUserName: from,
-			ToUserName:   to,
-			LocalID:      int(time.Now().Unix() * 1e4),
-			ClientMsgId:  int(time.Now().Unix() * 1e4),
-			MediaId:      media,
-		},
+		Msg:   msg,
 		Scene: 0,
 	}
 
@@ -377,7 +378,11 @@ func (api *ApiV2) WebWxSendFile(common *Common, ce *XmlConfig, cookies []*http.C
 	jar.SetCookies(u, cookies)
 
 	api.httpClient.SetJar(jar)
-	api.httpClient.PostJsonByte(uri, b)
+	responses, err := api.httpClient.PostJsonByte(uri, b)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(string(responses))
 }
 
 // WebWxSendMsgImg: webwxsendmsgimg api
@@ -612,7 +617,7 @@ func (api *ApiV2) WebWxSendEmoticon(common *Common, ce *XmlConfig, cookies []*ht
 	km.Add("fun", "sys")
 	km.Add("lang", common.Lang)
 
-	uri := common.CgiUrl + "/webwxsendemoticon?" + km.Encode()
+	uri := common.CgiUrl + "/webwxsendmsg?" + km.Encode()
 
 	js := InitReqBody{
 		BaseRequest: &BaseRequest{

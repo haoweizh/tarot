@@ -150,6 +150,7 @@ func CreateSession(common *Common, handlerRegister *HandlerRegister, qrmode int)
 	}
 	return session, nil
 }
+
 //func CreateWebSessionWithPath(common *Common, handlerRegister *HandlerRegister, qrcode_path string) (*Session, error) {
 //	if common == nil {
 //		common = DefaultCommon
@@ -547,7 +548,6 @@ func (s *Session) SendFile(path, from, to string) {
 		logs.Error(err)
 		return
 	}
-	//ret, err := s.Api.WebWxSendMsgImg(s.WxWebCommon, s.WxWebXcg, s.GetCookies(), from, to, mediaId)
 	s.Api.WebWxSendFile(s.WxWebCommon, s.WxWebXcg, s.GetCookies(), from, to, mediaId, msg)
 }
 

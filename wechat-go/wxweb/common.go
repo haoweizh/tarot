@@ -219,6 +219,7 @@ type MediaMessage struct {
 	LocalID      int
 	ClientMsgId  int
 	MediaId      string
+	EmojiFlag    int
 }
 
 // EmotionMessage: gif/emoji message struct

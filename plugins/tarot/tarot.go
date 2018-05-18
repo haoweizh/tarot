@@ -38,9 +38,12 @@ func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 		return
 	}
 	if msg.MsgType == wxweb.MSG_TEXT && strings.Contains(msg.Content, "重新") {
+		model.AppBot.SendFile(`./resource/emoji1.png`, model.AppBot.Bot.UserName, contact.UserName)
+		model.AppBot.SendFile(`./resource/cry.gif`, model.AppBot.Bot.UserName, contact.UserName)
 		model.DB.Table("my_contacts").Where("nick_name = ? AND tarot_nick_name = ?",
 			contact.NickName, session.Bot.NickName).
 			Update(map[string]interface{}{"tarot_status": 3, "welcome_no_resp": 0, "new_status": true})
+		return
 	}
 
 	var myContact model.MyContact

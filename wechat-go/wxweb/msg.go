@@ -7,7 +7,7 @@ type Msg interface {
 	Path() string
 	To() string
 	Content() map[string]interface{}
-
+	MessageType() int
 	Description() string
 }
 
@@ -52,7 +52,7 @@ func (msg *FileMsg) Description() string {
 
 // NewFileMsg construct a new FileMsg's instance
 func NewFileMsg(mediaID, to, name, ext string) *FileMsg {
-	return &FileMsg{to, mediaID, `webwxsendappmsg?fun=async&f=json`, 6, name, ext}
+	return &FileMsg{to, mediaID, `webwxsendappmsg?fun=async&f=json`, 3, name, ext}
 }
 
 // NewImageMsg ..
@@ -105,10 +105,10 @@ func (msg *TextMsg) Description() string {
 	return fmt.Sprintf(`[TextMessage] %s`, msg.content)
 }
 
-// NewTextMsg construct a new TextMsg's instance
-func NewTextMsg(text, to string) *TextMsg {
-	return &TextMsg{to, text}
-}
+//// NewTextMsg construct a new TextMsg's instance
+//func NewTextMsg(text, to string) *TextMsg {
+//	return &TextMsg{to, text}
+//}
 
 func (msg *TextMsg) String() string {
 	return msg.content
@@ -118,6 +118,7 @@ func (msg *TextMsg) String() string {
 type EmoticonMsg struct {
 	to      string
 	mediaID string
+	ftype   int
 }
 
 // Path is text msg's api path
@@ -147,9 +148,17 @@ func (msg *EmoticonMsg) Description() string {
 
 // NewEmoticonMsgMsg create a new instance
 func NewEmoticonMsgMsg(mid, to string) *EmoticonMsg {
-	return &EmoticonMsg{to, mid}
+	return &EmoticonMsg{to, mid, MSG_EMOTION}
 }
 
 func (msg *EmoticonMsg) String() string {
 	return `GIF EMOTICON`
+}
+
+func (msg *EmoticonMsg) MessageType() int {
+	return msg.ftype
+}
+
+func (msg *FileMsg) MessageType() int {
+	return msg.ftype
 }
