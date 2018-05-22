@@ -14,6 +14,6 @@ var DB *gorm.DB
 
 var SendChannel = make(chan TarotEvent, 10)
 
-const DBConnection = "host=47.254.45.236 port=5432 user=crook dbname=tarot password=zaq12WSX sslmode=disable"
+const DBConnection = "host=139.196.84.85 port=5432 user=postgres dbname=postgres password=tarotpostgres sslmode=disable"
 
 //const DBConnection = "host=172.20.48.174 port=5432 user=crook dbname=tarot password=zaq12WSX sslmode=disable"
