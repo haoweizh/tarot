@@ -5,6 +5,18 @@ import (
 	"tarot/wechat-go/wxweb"
 )
 
+type TarotLog struct {
+	ID            uint `gorm:"primary_key"`
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	TarotNickName string
+	UserNickName  string
+	MsgType       int
+	MsgContent    string
+	FromStatus    int
+	ToStatus      int
+}
+
 type TarotSentence struct {
 	ID               uint `gorm:"primary_key"`
 	CreatedAt        time.Time
@@ -15,12 +27,12 @@ type TarotSentence struct {
 }
 
 type TarotEvent struct {
-	NickName      string
-	TarotStatus   int
-	UpdatedAt     time.Time
-	WelcomeNoResp int
-	City          string
-	Sex           int
+	FromUserName    string
+	ToUserName      string
+	NickName        string
+	SentenceType    string
+	FromTarotStatus int
+	ToTarotStatus   int
 }
 
 type MyContact struct {
@@ -29,8 +41,6 @@ type MyContact struct {
 	UpdatedAt     time.Time
 	TarotStatus   int
 	TarotNickName string
-	WelcomeNoResp int
-	NewStatus     bool
 	///////////////////////////////////////////
 	// from wxweb.User
 	Uin               int
@@ -101,3 +111,7 @@ func (myContact *MyContact) Init(value *wxweb.User) {
 	myContact.IsOwner = value.IsOwner
 	myContact.MemberStatus = value.MemberStatus
 }
+
+//func GetContact(nickName, city, tarotNickName string) (contact *MyContact) {
+//	DB.Where()
+//}

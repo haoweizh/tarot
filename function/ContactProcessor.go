@@ -4,123 +4,72 @@ import (
 	"time"
 	"fmt"
 	"tarot/model"
-	"math/rand"
 	"tarot/util"
+	"tarot/plugins/tarot"
 )
 
-// 主动
-//3 话术，表情 3/6(3次，间隔2天）
-//4 请求分享 8
-//7 发洗牌消息，选牌视频 10
-//9 发结果语句和视频，求红包 12
-//11 感谢、表情、金句 13
-//12 4天后或周末 3设置welcome_no_resp为0
-//13 四天后 3
-func sendHandler(event model.TarotEvent) {
-	contacts := model.AppBot.Cm.GetContactsByName(event.NickName)
-	if contacts == nil || len(contacts) == 0 {
-		fmt.Println("no this contact, ignore" + event.NickName)
-		return
+func sendHandler(nickEvents map[string]*model.TarotEvent, event model.TarotEvent) {
+	util.SendTarotMsg(event.FromUserName, event.ToUserName, event.SentenceType)
+	if event.FromTarotStatus != 0 && event.ToTarotStatus != 0 && event.FromTarotStatus != event.ToTarotStatus {
+		model.DB.Model(&model.MyContact{}).Where(`nick_name=?`, event.NickName).
+			Updates(map[string]interface{}{`tarot_status`: event.ToTarotStatus, `updated_at`: time.Now()})
 	}
-	for _, value := range contacts {
-		switch event.TarotStatus {
-		case 3:
-			if event.WelcomeNoResp >= 3 {
-				model.DB.Table("my_contacts").Where("nick_name = ? AND tarot_nick_name = ?",
-					value.NickName, model.AppBot.Bot.NickName).
-					Update(map[string]interface{}{"tarot_status": 6, "new_status": true})
-			} else if event.WelcomeNoResp == 0 || time.Now().Unix()-event.UpdatedAt.Unix() > 172800 {
-				event.WelcomeNoResp++
-				util.SendTarotText(`welcome`, 0, model.AppBot.Bot.UserName, value.UserName)
-				model.DB.Table("my_contacts").Where("nick_name = ? AND tarot_nick_name = ?",
-					value.NickName, model.AppBot.Bot.NickName).
-					Update(map[string]interface{}{"welcome_no_resp": event.WelcomeNoResp, "new_status": true})
-			} else {
-				fmt.Println(fmt.Sprintf("%s ignore tarot status 3 with welcome no response times %d",
-					event.NickName, event.WelcomeNoResp))
-			}
-		case 4:
-			util.SendTarotText(`share`, 0, model.AppBot.Bot.UserName, value.UserName)
-			model.AppBot.SendFile("./resource/share.jpg", model.AppBot.Bot.UserName, value.UserName)
-			model.DB.Table("my_contacts").Where("nick_name = ? AND tarot_nick_name = ?",
-				value.NickName, model.AppBot.Bot.NickName).
-				Update(map[string]interface{}{"tarot_status": 8, "new_status": true})
-		case 7:
-			util.SendTarotText(`wash`, 0, model.AppBot.Bot.UserName, value.UserName)
-			if rand.Intn(2) == 0 {
-				model.AppBot.SendFile("./resource/00.mp4", model.AppBot.Bot.UserName, value.UserName)
-			} else {
-				model.AppBot.SendFile("./resource/01.mp4", model.AppBot.Bot.UserName, value.UserName)
-			}
-			util.SendTarotText(`choose`, 0, model.AppBot.Bot.UserName, value.UserName)
-			model.DB.Table("my_contacts").Where("nick_name = ? AND tarot_nick_name = ?",
-				value.NickName, model.AppBot.Bot.NickName).
-				Update(map[string]interface{}{"tarot_status": 10, "new_status": true})
-		case 9:
-			index := rand.Intn(44) + 1
-			path := fmt.Sprintf("./resource/%d.mp4", index)
-			model.AppBot.SendFile(path, model.AppBot.Bot.UserName, value.UserName)
-			util.SendTarotText(`answer`, index, model.AppBot.Bot.UserName, value.UserName)
-			util.SendTarotText(`pay`, 0, model.AppBot.Bot.UserName, value.UserName)
-			model.DB.Table("my_contacts").Where("nick_name = ? AND tarot_nick_name = ?",
-				value.NickName, model.AppBot.Bot.NickName).
-				Update(map[string]interface{}{"tarot_status": 12, "new_status": true})
-		case 11:
-			util.SendTarotText(`after_pay`, 0, model.AppBot.Bot.UserName, value.UserName)
-			model.DB.Table("my_contacts").Where("nick_name = ? AND tarot_nick_name = ?",
-				value.NickName, model.AppBot.Bot.NickName).
-				Update(map[string]interface{}{"tarot_status": 13, "new_status": true})
-		case 12:
-			if time.Now().Unix()-event.UpdatedAt.Unix() > 345600 || time.Now().Weekday() == time.Saturday ||
-				time.Now().Weekday() == time.Sunday {
-				model.DB.Table("my_contacts").Where("nick_name = ? AND tarot_nick_name = ?",
-					value.NickName, model.AppBot.Bot.NickName).
-					Update(map[string]interface{}{"tarot_status": 3, "welcome_no_resp": 0, "new_status": true})
-			}
-		case 13:
-			if time.Now().Unix()-event.UpdatedAt.Unix() > 345600 {
-				model.DB.Table("my_contacts").Where("nick_name = ? AND tarot_nick_name = ?",
-					value.NickName, model.AppBot.Bot.NickName).
-					Update(map[string]interface{}{"tarot_status": 3, "welcome_no_resp": 0, "new_status": true})
-			}
-		}
-
-		time.Sleep(time.Second * 3)
-	}
+	nickEvents[event.NickName] = nil
 }
 
 func PlayTarot() {
 	for true {
-		rows, err := model.DB.Table("my_contacts").
-			Select("city,sex,nick_name,tarot_status,updated_at,welcome_no_resp").
-			Where("tarot_nick_name = ? AND tarot_status in (3,4,7,9,11,12,13) AND new_status = true",
-			model.AppBot.Bot.NickName).Order("updated_at desc").Rows()
+		rows, err := model.DB.Table("my_contacts").Select("nick_name,tarot_status,updated_at").
+			Where("tarot_nick_name = ?", model.AppBot.Bot.NickName).Rows()
 		if err != nil {
-			fmt.Sprint(err)
+			util.Notice(`db error:` + fmt.Sprint(err))
 			continue
 		}
 		for rows.Next() {
-			var nickName, city string
-			var tarotStatus, welcomeNoResp, sex int
+			var nickName string
+			var tarotStatus int
 			var updatedAt time.Time
-			rows.Scan(&city, &sex, &nickName, &tarotStatus, &updatedAt, &welcomeNoResp)
-			fmt.Println(fmt.Sprintf("%s at status %d play tarot no response time %d", nickName, tarotStatus, welcomeNoResp))
-			event := model.TarotEvent{NickName: nickName, TarotStatus: tarotStatus, City: city, Sex: sex,
-				UpdatedAt: updatedAt, WelcomeNoResp: welcomeNoResp}
-			if tarotStatus != 3 {
-				model.DB.Table("my_contacts").Where("nick_name = ? AND tarot_nick_name = ?",
-					nickName, model.AppBot.Bot.NickName).Update(map[string]interface{}{"new_status": false})
+			rows.Scan(&nickName, &tarotStatus, &updatedAt)
+			toTarotStatus := tarot.CheckTime(tarotStatus, updatedAt)
+			if toTarotStatus == 0 {
+				continue
 			}
-			model.SendChannel <- event
+			contacts := model.AppBot.Cm.GetContactsByName(nickName)
+			for _, value := range contacts {
+				sentenceType := fmt.Sprintf(`%d-%d`, tarotStatus, toTarotStatus)
+				event := model.TarotEvent{FromUserName: model.AppBot.Bot.UserName, ToUserName: value.UserName,
+					SentenceType: sentenceType, NickName: nickName, FromTarotStatus: tarotStatus, ToTarotStatus: toTarotStatus}
+				util.Info(fmt.Sprintf("%s play tarot with sentence %s", nickName, sentenceType))
+				model.SendChannel <- event
+			}
 		}
 		time.Sleep(time.Second * 10)
 	}
 }
 
+func checkEventAmount(events map[string]*model.TarotEvent) (amount int) {
+	amount = 0
+	for _, value := range events {
+		if value != nil {
+			amount++
+		}
+	}
+	return amount
+}
+
 func SendChannelServe() {
+	nickEvents := make(map[string]*model.TarotEvent)
 	for true {
-		state := <-model.SendChannel
-		fmt.Println(fmt.Sprintf("go to handle state %s status %d", state.NickName, state.TarotStatus))
-		go sendHandler(state)
+		event := <-model.SendChannel
+		if nickEvents[event.NickName] != nil {
+			util.SocketInfo(fmt.Sprintf(`can not send %s msg, abandon %s`, event.NickName, event.SentenceType))
+			continue
+		}
+		nickEvents[event.NickName] = &event
+		for checkEventAmount(nickEvents) > 2 {
+			util.SocketInfo(fmt.Sprintf(`%d events in nickEvents, sleep 3 seconds`, len(nickEvents)))
+			time.Sleep(time.Second * 3)
+		}
+		go sendHandler(nickEvents, event)
 	}
 }

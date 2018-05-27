@@ -5,7 +5,7 @@ import (
 	"time"
 	"tarot/wechat-go/wxweb"
 	"tarot/model"
-	"fmt"
+	"tarot/util"
 )
 
 func ProcessLogin() {
@@ -35,14 +35,14 @@ func SyncContact() {
 	for _, contact := range contacts {
 		myContact := &model.MyContact{NickName: contact.NickName, TarotNickName: model.AppBot.Bot.NickName}
 		model.DB.Where("nick_name = ? AND tarot_nick_name = ?", myContact.NickName,
-			model.AppBot.Bot.NickName).First(&myContact)
+			model.AppBot.Bot.NickName).First(myContact)
 		myContact.Init(contact)
-		if model.DB.NewRecord(&myContact) {
-			myContact.TarotStatus = 3
-			fmt.Println(myContact.NickName + " is added as nick of " + model.AppBot.Bot.NickName)
-			model.DB.Create(&myContact)
+		if model.DB.NewRecord(myContact) {
+			myContact.TarotStatus = 101
+			util.Info(myContact.NickName + " is added as nick of " + model.AppBot.Bot.NickName)
+			model.DB.Create(myContact)
 		} else {
-			fmt.Println(myContact.NickName + " do not updated as nick of " + model.AppBot.Bot.NickName)
+			util.Info(myContact.NickName + " do not updated as nick of " + model.AppBot.Bot.NickName)
 			//model.DB.Save(myContact)
 		}
 	}

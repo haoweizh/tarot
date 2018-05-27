@@ -12,7 +12,7 @@ import (
 var AppBot *wxweb.Session
 var DB *gorm.DB
 
-var SendChannel = make(chan TarotEvent, 10)
+var SendChannel = make(chan TarotEvent, 100)
 
 const DBConnection = "host=139.196.84.85 port=5432 user=postgres dbname=postgres password=tarotpostgres sslmode=disable"
 

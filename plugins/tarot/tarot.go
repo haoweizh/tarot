@@ -4,12 +4,10 @@ import (
 	"tarot/wechat-go/wxweb"
 	"strings"
 	"tarot/model"
-	"regexp"
-	"strconv"
 	"github.com/songtianyi/rrframework/logs"
-	"math/rand"
-	"time"
+	"fmt"
 	"tarot/util"
+	"time"
 )
 
 // register plugin
@@ -25,11 +23,6 @@ func Register(session *wxweb.Session) {
 	}
 }
 
-//3 收到回应 4
-//8 收到图片或随机概率 7
-//8 收到非图片,抗议 8
-//10 收到数字 9
-//12 收到红包 11
 func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 	// contact filter
 	contact := session.Cm.GetContactByUserName(msg.FromUserName)
@@ -38,44 +31,58 @@ func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 		return
 	}
 	if msg.MsgType == wxweb.MSG_TEXT && strings.Contains(msg.Content, "重新") {
-		model.AppBot.SendFile(`./resource/emoji1.png`, model.AppBot.Bot.UserName, contact.UserName)
-		model.AppBot.SendFile(`./resource/cry.gif`, model.AppBot.Bot.UserName, contact.UserName)
 		model.DB.Table("my_contacts").Where("nick_name = ? AND tarot_nick_name = ?",
 			contact.NickName, session.Bot.NickName).
-			Update(map[string]interface{}{"tarot_status": 3, "welcome_no_resp": 0, "new_status": true})
+			Update(map[string]interface{}{"tarot_status": 101})
 		return
 	}
-
+	var toTarotStatus = 0
+	var sentenceType string
 	var myContact model.MyContact
 	model.DB.Where("nick_name = ? AND tarot_nick_name = ?",
 		contact.NickName, session.Bot.NickName).First(&myContact)
-	switch myContact.TarotStatus {
-	case 3:
-		model.DB.Table("my_contacts").Where("nick_name = ? AND tarot_nick_name = ?",
-			contact.NickName, session.Bot.NickName).
-			Update(map[string]interface{}{"tarot_status": 4, "welcome_no_resp": 0, "new_status": true})
-	case 8:
-		if msg.MsgType == wxweb.MSG_IMG || rand.Intn(5) == 1 { // 收到图片
-			model.DB.Table("my_contacts").Where("nick_name = ? AND tarot_nick_name = ?",
-				contact.NickName, model.AppBot.Bot.NickName).
-				Update(map[string]interface{}{"tarot_status": 7, "new_status": true})
-		} else {
-			util.SendTarotText(`no_share`, 0, model.AppBot.Bot.NickName, contact.UserName)
-			time.Sleep(10 * time.Second)
-		}
-	case 10:
-		reg := regexp.MustCompile(`\d+`)
-		choice, _ := strconv.ParseInt(reg.FindString(msg.Content), 10, 0)
-		if choice >= 1 || choice <= 22 {
-			model.DB.Table("my_contacts").Where("nick_name = ? AND tarot_nick_name = ?",
-				contact.NickName, model.AppBot.Bot.NickName).
-				Update(map[string]interface{}{"tarot_status": 9, "new_status": true})
-		}
-	case 12:
-		if msg.MsgType == wxweb.MSG_SYS {
-			model.DB.Table("my_contacts").Where("nick_name = ? AND tarot_nick_name = ?",
-				contact.NickName, model.AppBot.Bot.NickName).
-				Update(map[string]interface{}{"tarot_status": 11, "new_status": true})
+	if (myContact.TarotStatus >= 101 && myContact.TarotStatus <= 104) ||
+		(myContact.TarotStatus >= 501 && myContact.TarotStatus <= 503) ||
+		(myContact.TarotStatus >= 510 && myContact.TarotStatus <= 515) ||
+		(myContact.TarotStatus >= 520 && myContact.TarotStatus <= 525) ||
+		(myContact.TarotStatus >= 530 && myContact.TarotStatus <= 533) || myContact.TarotStatus == 584 ||
+		myContact.TarotStatus == 585 || myContact.TarotStatus == 594 || myContact.TarotStatus == 595 ||
+		(myContact.TarotStatus >= 600 && myContact.TarotStatus <= 602) {
+		toTarotStatus = receiveAny(myContact.TarotStatus)
+	} else if (myContact.TarotStatus >= 200 && myContact.TarotStatus <= 211) || myContact.TarotStatus == 603 {
+		toTarotStatus = receiveCheckImg(myContact.TarotStatus, msg.MsgType)
+	} else if myContact.TarotStatus == 212 {
+		toTarotStatus = doNothing(myContact.TarotStatus)
+	} else if ((myContact.TarotStatus >= 301 && myContact.TarotStatus <= 313) || myContact.TarotStatus == 604) &&
+		msg.MsgType == wxweb.MSG_TEXT {
+		toTarotStatus = checkNum(myContact.TarotStatus, msg.Content)
+	} else if myContact.TarotStatus >= 401 && myContact.TarotStatus <= 404 {
+		toTarotStatus = receiveHongbao(myContact.TarotStatus, msg.MsgType)
+	} else if myContact.TarotStatus == 505 && msg.MsgType == wxweb.MSG_TEXT {
+		toTarotStatus = receiveBeginTarot(myContact.TarotStatus, msg.Content)
+	} else if myContact.TarotStatus == 504 {
+		toTarotStatus = receiveHongbao(myContact.TarotStatus, msg.MsgType)
+		if toTarotStatus == 0 && msg.MsgType == wxweb.MSG_TEXT {
+			toTarotStatus = receiveBeginTarot(myContact.TarotStatus, msg.Content)
 		}
 	}
+	if toTarotStatus == 0 {
+		util.Notice(fmt.Sprintf(`can not get toTarotStatus from tarot status %d`, myContact.TarotStatus))
+		if msg.MsgType == wxweb.MSG_SYS && !((myContact.TarotStatus >= 401 && myContact.TarotStatus <= 404) ||
+			myContact.TarotStatus == 504) { // 收到红包
+			sentenceType = `all_hongbao`
+		} else {
+			return
+		}
+	} else {
+		sentenceType = fmt.Sprintf(`%d-%d`, myContact.TarotStatus, toTarotStatus)
+	}
+	tarotLog := &model.TarotLog{TarotNickName: session.Bot.NickName, UserNickName: myContact.NickName,
+		MsgType: msg.MsgType, MsgContent: msg.Content, FromStatus: myContact.TarotStatus, ToStatus: toTarotStatus}
+	model.DB.Save(tarotLog)
+	event := model.TarotEvent{FromUserName: session.Bot.UserName, ToUserName: contact.UserName,
+		SentenceType: sentenceType, NickName: contact.NickName, FromTarotStatus: myContact.TarotStatus, ToTarotStatus: toTarotStatus}
+	util.Info(fmt.Sprintf("%s play tarot with sentence %s", contact.NickName, sentenceType))
+	model.SendChannel <- event
+	time.Sleep(time.Second * 10)
 }

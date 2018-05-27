@@ -29,17 +29,14 @@ func system(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 	case wxweb.MSG_FV:
 		session.AcceptFriend("", []*wxweb.VerifyUser{{Value: msg.RecommendInfo.UserName,
 			VerifyUserTicket: msg.RecommendInfo.Ticket}})
-		myContact := model.MyContact{NickName: msg.RecommendInfo.NickName, TarotNickName: model.AppBot.Bot.NickName,
-			NewStatus: true}
+		myContact := model.MyContact{NickName: msg.RecommendInfo.NickName, TarotNickName: model.AppBot.Bot.NickName}
 		model.DB.Where("nick_name = ? AND tarot_nick_name = ?", myContact.NickName, model.AppBot.Bot.NickName).
 			First(&myContact)
 		model.AppBot.Cm.AddUser(&wxweb.User{NickName: msg.RecommendInfo.NickName,
 			UserName: msg.RecommendInfo.UserName, City: msg.RecommendInfo.City, Sex: msg.RecommendInfo.Sex})
 		logs.Info("accept user apply with name of %s", myContact.NickName)
 		if model.DB.NewRecord(&myContact) {
-			myContact.TarotStatus = 3
-			myContact.NewStatus = true
-			myContact.WelcomeNoResp = 0
+			myContact.TarotStatus = 101
 			logs.Info("new contact added %s of %s", myContact.NickName, model.AppBot.Bot.NickName)
 			model.DB.Create(&myContact)
 		} else {

@@ -39,6 +39,7 @@ func main() {
 	defer model.DB.Close()
 	model.DB.AutoMigrate(&model.MyContact{})
 	model.DB.AutoMigrate(&model.TarotSentence{})
+	model.DB.AutoMigrate(&model.TarotLog{})
 
 	go function.ProcessLogin()
 	model.AppBot.SetAfterLogin(func() (err error) {
