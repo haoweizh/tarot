@@ -35,7 +35,6 @@ func SendTarotMsg(from, to string, sentenceType string) {
 	regNum := regexp.MustCompile(`\d+`)
 	for _, value := range sentences {
 		if strings.Contains(value, `tarotsleep`) {
-			value = strings.Replace(value, `\n`, `                    `, -1)
 			sleepSeconds := regNum.FindAllString(value, -1)
 			if len(sleepSeconds) == 1 {
 				sleepTime, _ := strconv.ParseInt(sleepSeconds[0], 10, 64)
