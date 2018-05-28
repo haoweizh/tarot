@@ -16,12 +16,19 @@ import (
 func SendTarotMsg(from, to string, sentenceType string) {
 	content, err := getSentence(sentenceType)
 	if err != nil {
-		util.Notice(err.Error())
+		util.Notice(content + ` can not get sentence` + err.Error())
 		return
 	}
-	j, err := simplejson.NewJson([]byte(content))
+	bytes := []byte(content)
+	jsonBytes := make([]byte, 0)
+	for _, value := range bytes {
+		if value != '\n' {
+			jsonBytes = append(jsonBytes, value)
+		}
+	}
+	j, err := simplejson.NewJson(jsonBytes)
 	if err != nil {
-		util.Notice(err.Error())
+		util.Notice(content + ` can not parse json ` + err.Error())
 		return
 	}
 	sentences, _ := j.Get(`data`).StringArray()
