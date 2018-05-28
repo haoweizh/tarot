@@ -158,7 +158,10 @@ func receiveHongbao(fromTarotStatus int, msgType int) (toTarotStatus int) {
 			return 505
 		}
 	} else { //红包以外的任何回复
-		if fromTarotStatus >= 401 && fromTarotStatus <= 404 {
+		if fromTarotStatus >= 401 && fromTarotStatus <= 403 {
+			return 404
+		}
+		if fromTarotStatus == 404 {
 			return 504
 		}
 	}
