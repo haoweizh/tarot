@@ -223,19 +223,23 @@ func checkNum(fromTarotStatus int, content string, msgType int) (toTarotStatus i
 	if msgType != wxweb.MSG_TEXT {
 		others = true
 	} else {
-		num, err := parseNum(content)
-		if err == nil && num > 0 {
-			if num <= 22 { //用回复包含1～22的数字（及汉字）
-				if (fromTarotStatus >= 301 && fromTarotStatus <= 313) || fromTarotStatus == 604 {
-					return 401
-				}
-			} else { //用回复1～22以外的数字
-				if (fromTarotStatus >= 301 && fromTarotStatus <= 313) || fromTarotStatus == 604 {
-					return 313
-				}
-			}
-		} else {
+		if strings.Contains(content, `[`) && strings.Contains(content, `]`) {
 			others = true
+		} else {
+			num, err := parseNum(content)
+			if err == nil && num > 0 {
+				if num <= 22 { //用回复包含1～22的数字（及汉字）
+					if (fromTarotStatus >= 301 && fromTarotStatus <= 313) || fromTarotStatus == 604 {
+						return 401
+					}
+				} else { //用回复1～22以外的数字
+					if (fromTarotStatus >= 301 && fromTarotStatus <= 313) || fromTarotStatus == 604 {
+						return 313
+					}
+				}
+			} else {
+				others = true
+			}
 		}
 	}
 	if others {
