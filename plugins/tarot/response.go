@@ -4,7 +4,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"errors"
 	"tarot/wechat-go/wxweb"
 	"math/rand"
 	"time"
@@ -96,14 +95,11 @@ func CheckTime(fromTarotStatus int, updatedAt time.Time) (toTarotStatus int) {
 	}
 	// 用户30～60秒没有回复
 	if triggerByWaitTime(updatedAt, 30, 60) {
-		if fromTarotStatus == 101 || fromTarotStatus == 201 || fromTarotStatus == 301 {
+		if fromTarotStatus == 101 || fromTarotStatus == 301 {
 			return fromTarotStatus + 1
 		}
 		if fromTarotStatus == 200 {
 			return 202
-		}
-		if fromTarotStatus == 206 {
-			return 203
 		}
 	}
 	// 用户3小时没有回复
@@ -120,13 +116,12 @@ func CheckTime(fromTarotStatus int, updatedAt time.Time) (toTarotStatus int) {
 	}
 	// 用户8～12分钟没有回复
 	if triggerByWaitTime(updatedAt, 480, 720) {
-		if fromTarotStatus == 102 || fromTarotStatus == 103 || fromTarotStatus == 202 || fromTarotStatus == 203 ||
-			fromTarotStatus == 204 || fromTarotStatus == 302 || fromTarotStatus == 303 || fromTarotStatus == 304 ||
+		if fromTarotStatus == 102 || fromTarotStatus == 103 || (fromTarotStatus >= 201 && fromTarotStatus <= 204) ||
+			fromTarotStatus == 302 || fromTarotStatus == 303 || fromTarotStatus == 304 ||
 			fromTarotStatus == 401 || fromTarotStatus == 402 {
 			return fromTarotStatus + 1
 		}
-		if fromTarotStatus == 207 || fromTarotStatus == 208 || fromTarotStatus == 209 || fromTarotStatus == 311 ||
-			fromTarotStatus == 312 {
+		if (fromTarotStatus >= 206 && fromTarotStatus <= 209) || fromTarotStatus == 311 || fromTarotStatus == 312 {
 			return 203
 		}
 		if fromTarotStatus == 210 || fromTarotStatus == 211 {
@@ -147,7 +142,7 @@ func CheckTime(fromTarotStatus int, updatedAt time.Time) (toTarotStatus int) {
 
 func doNothing(fromTarotStatus int) (toTarotStatus int) {
 	if fromTarotStatus == 212 {
-		return 303
+		return 301
 	}
 	return 0
 }
@@ -255,50 +250,26 @@ func parseNum(content string) (num int64, err error) {
 	if numStr != `` {
 		return strconv.ParseInt(numStr, 10, 64)
 	}
-	if strings.Contains(content, `二十二`) {
-		return 22, nil
-	} else if strings.Contains(content, `二十一`) {
-		return 21, nil
-	} else if strings.Contains(content, `二十`) {
-		return 20, nil
-	} else if strings.Contains(content, `十九`) {
-		return 19, nil
-	} else if strings.Contains(content, `十八`) {
-		return 18, nil
-	} else if strings.Contains(content, `十七`) {
-		return 17, nil
-	} else if strings.Contains(content, `十六`) {
-		return 16, nil
-	} else if strings.Contains(content, `十五`) {
-		return 15, nil
-	} else if strings.Contains(content, `十四`) {
-		return 14, nil
-	} else if strings.Contains(content, `十三`) {
-		return 13, nil
-	} else if strings.Contains(content, `十二`) {
-		return 12, nil
-	} else if strings.Contains(content, `十一`) {
-		return 11, nil
-	} else if strings.Contains(content, `十`) {
-		return 10, nil
-	} else if strings.Contains(content, `九`) {
-		return 9, nil
-	} else if strings.Contains(content, `八`) {
-		return 8, nil
-	} else if strings.Contains(content, `七`) {
-		return 7, nil
-	} else if strings.Contains(content, `六`) {
-		return 6, nil
-	} else if strings.Contains(content, `五`) {
-		return 5, nil
-	} else if strings.Contains(content, `四`) {
-		return 4, nil
-	} else if strings.Contains(content, `三`) {
-		return 3, nil
-	} else if strings.Contains(content, `二`) {
-		return 2, nil
-	} else if strings.Contains(content, `一`) {
-		return 1, nil
+	return int64(checkTarotNum(content)), nil
+}
+
+var tarotNumStr = []string{`二十二`, `二十一`, `二十`, `十九`, `十八`, `十七`, `十六`, `十五`, `十四`, `十三`,
+	`十二`, `十一`, `十`, `九`, `八`, `七`, `六`, `五`, `四`, `三`, `二`, `一`}
+
+func checkTarotNum(content string) (tarotNum int) {
+	num := 0
+	for key, value := range tarotNumStr {
+		if strings.Contains(content, value) {
+			content = strings.Replace(content, value, strconv.Itoa(22-key), 1)
+			num = 22 - key
+			break
+		}
 	}
-	return 0, errors.New(`no number found`)
+	for _, value := range tarotNumStr {
+		if strings.Contains(content, value) {
+			// 当有多个字符串时，认为用户输入了大于二十二的汉字数
+			return 100
+		}
+	}
+	return num
 }

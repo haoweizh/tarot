@@ -15,6 +15,12 @@ func Register(session *wxweb.Session) {
 	session.HandlerRegister.Add(wxweb.MSG_TEXT, wxweb.Handler(listenCmd), "tarotText")
 	session.HandlerRegister.Add(wxweb.MSG_IMG, wxweb.Handler(listenCmd), "tarotImg")
 	session.HandlerRegister.Add(wxweb.MSG_SYS, wxweb.Handler(listenCmd), "tarotSys")
+	session.HandlerRegister.Add(wxweb.MSG_EMOTION, wxweb.Handler(listenCmd), "tarotEmotion")
+	session.HandlerRegister.Add(wxweb.MSG_LINK, wxweb.Handler(listenCmd), "tarotLink")
+	session.HandlerRegister.Add(wxweb.MSG_SHORT_VIDEO, wxweb.Handler(listenCmd), "tarotShortVideo")
+	session.HandlerRegister.Add(wxweb.MSG_LOCATION, wxweb.Handler(listenCmd), "tarotLocation")
+	session.HandlerRegister.Add(wxweb.MSG_VOICE, wxweb.Handler(listenCmd), "tarotVoice")
+	session.HandlerRegister.Add(wxweb.MSG_VIDEO, wxweb.Handler(listenCmd), "tarotVideo")
 	if err := session.HandlerRegister.EnableByName("tarotText"); err != nil {
 		logs.Error(err)
 	}
