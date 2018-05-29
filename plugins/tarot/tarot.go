@@ -82,7 +82,7 @@ func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 		toTarotStatus = doNothing(myContact.TarotStatus)
 	} else if ((myContact.TarotStatus >= 301 && myContact.TarotStatus <= 313) || myContact.TarotStatus == 604) &&
 		msg.MsgType == wxweb.MSG_TEXT {
-		toTarotStatus = checkNum(myContact.TarotStatus, msg.Content)
+		toTarotStatus = checkNum(myContact.TarotStatus, msg.Content, msg.MsgType)
 	} else if myContact.TarotStatus >= 401 && myContact.TarotStatus <= 404 {
 		toTarotStatus = receiveHongbao(myContact.TarotStatus, msg.MsgType)
 	} else if myContact.TarotStatus == 505 && msg.MsgType == wxweb.MSG_TEXT {
