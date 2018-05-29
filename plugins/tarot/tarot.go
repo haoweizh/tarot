@@ -27,6 +27,27 @@ func Register(session *wxweb.Session) {
 	if err := session.HandlerRegister.EnableByName("tarotImg"); err != nil {
 		logs.Error(err)
 	}
+	if err := session.HandlerRegister.EnableByName("tarotSys"); err != nil {
+		logs.Error(err)
+	}
+	if err := session.HandlerRegister.EnableByName("tarotEmotion"); err != nil {
+		logs.Error(err)
+	}
+	if err := session.HandlerRegister.EnableByName("tarotLink"); err != nil {
+		logs.Error(err)
+	}
+	if err := session.HandlerRegister.EnableByName("tarotShortVideo"); err != nil {
+		logs.Error(err)
+	}
+	if err := session.HandlerRegister.EnableByName("tarotLocation"); err != nil {
+		logs.Error(err)
+	}
+	if err := session.HandlerRegister.EnableByName("tarotVoice"); err != nil {
+		logs.Error(err)
+	}
+	if err := session.HandlerRegister.EnableByName("tarotVideo"); err != nil {
+		logs.Error(err)
+	}
 }
 
 func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
