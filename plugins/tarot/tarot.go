@@ -57,7 +57,7 @@ func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 		logs.Error("no this contact, ignore", msg.FromUserName)
 		return
 	}
-	if msg.MsgType == wxweb.MSG_TEXT && strings.Contains(msg.Content, "重新") {
+	if msg.MsgType == wxweb.MSG_TEXT && strings.Contains(msg.Content, "唧唧复唧唧") {
 		model.DB.Table("my_contacts").Where("nick_name = ? AND tarot_nick_name = ?",
 			contact.NickName, session.Bot.NickName).
 			Update(map[string]interface{}{"tarot_status": 101})
