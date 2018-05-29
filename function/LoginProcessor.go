@@ -33,6 +33,14 @@ func ProcessLogin() {
 func SyncContact() {
 	contacts := model.AppBot.Cm.GetAll()
 	for _, contact := range contacts {
+		if contact.AttrStatus < 1000 {
+			// 过滤掉部分微信官方用户
+			continue
+		}
+		bytes := []byte(contact.UserName)
+		if bytes[0] == '@' && bytes[1] == '@' { //过滤掉@@开头的userName(微信群)
+			continue
+		}
 		myContact := &model.MyContact{NickName: contact.NickName, TarotNickName: model.AppBot.Bot.NickName}
 		model.DB.Where("nick_name = ? AND tarot_nick_name = ?", myContact.NickName,
 			model.AppBot.Bot.NickName).First(myContact)
