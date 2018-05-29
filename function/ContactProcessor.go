@@ -9,6 +9,10 @@ import (
 )
 
 func sendHandler(nickEvents map[string]*model.TarotEvent, event model.TarotEvent) {
+	bytes := []byte(event.ToUserName)
+	if bytes[0] == '@' && bytes[1] == '@' { //过滤掉@@开头的userName(微信群)
+		return
+	}
 	util.SendTarotMsg(event.FromUserName, event.ToUserName, event.SentenceType)
 	if event.FromTarotStatus != 0 && event.ToTarotStatus != 0 && event.FromTarotStatus != event.ToTarotStatus {
 		model.DB.Model(&model.MyContact{}).Where(`nick_name=?`, event.NickName).
