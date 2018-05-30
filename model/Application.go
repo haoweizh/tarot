@@ -11,6 +11,7 @@ import (
 //1 通过好友 3
 var AppBot *wxweb.Session
 var DB *gorm.DB
+var ApplicationEvents *Events
 
 var SendChannel = make(chan TarotEvent, 100)
 

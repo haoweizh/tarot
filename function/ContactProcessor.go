@@ -8,17 +8,21 @@ import (
 	"tarot/plugins/tarot"
 )
 
-func sendHandler(nickEvents map[string]*model.TarotEvent, event model.TarotEvent) {
+func sendHandler(nickName string) {
+	for model.ApplicationEvents.GetUnNilAmount() > 2 {
+		util.SocketInfo(fmt.Sprintf(`more than 2 events in nickEvents, sleep 3 seconds`))
+		time.Sleep(time.Second * 3)
+	}
+	event := model.ApplicationEvents.RemoveEvent(nickName)
+	if event.FromTarotStatus != 0 && event.ToTarotStatus != 0 && event.FromTarotStatus != event.ToTarotStatus {
+		model.DB.Model(&model.MyContact{}).Where(`nick_name=?`, event.NickName).
+			Updates(map[string]interface{}{`tarot_status`: event.ToTarotStatus, `updated_at`: time.Now()})
+	}
 	bytes := []byte(event.ToUserName)
 	if bytes[0] == '@' && bytes[1] == '@' { //过滤掉@@开头的userName(微信群)
 		return
 	}
 	util.SendTarotMsg(event.FromUserName, event.ToUserName, event.SentenceType)
-	if event.FromTarotStatus != 0 && event.ToTarotStatus != 0 && event.FromTarotStatus != event.ToTarotStatus {
-		model.DB.Model(&model.MyContact{}).Where(`nick_name=?`, event.NickName).
-			Updates(map[string]interface{}{`tarot_status`: event.ToTarotStatus, `updated_at`: time.Now()})
-	}
-	nickEvents[event.NickName] = nil
 }
 
 func PlayTarot() {
@@ -47,33 +51,14 @@ func PlayTarot() {
 				model.SendChannel <- event
 			}
 		}
-		time.Sleep(time.Second * 10)
+		time.Sleep(time.Second * 60)
 	}
-}
-
-func checkEventAmount(events map[string]*model.TarotEvent) (amount int) {
-	amount = 0
-	for _, value := range events {
-		if value != nil {
-			amount++
-		}
-	}
-	return amount
 }
 
 func SendChannelServe() {
-	nickEvents := make(map[string]*model.TarotEvent)
 	for true {
 		event := <-model.SendChannel
-		if nickEvents[event.NickName] != nil {
-			util.SocketInfo(fmt.Sprintf(`can not send %s msg, abandon %s`, event.NickName, event.SentenceType))
-			continue
-		}
-		nickEvents[event.NickName] = &event
-		for checkEventAmount(nickEvents) > 2 {
-			util.SocketInfo(fmt.Sprintf(`%d events in nickEvents, sleep 3 seconds`, len(nickEvents)))
-			time.Sleep(time.Second * 3)
-		}
-		go sendHandler(nickEvents, event)
+		model.ApplicationEvents.PutEvent(event.NickName, &event)
+		go sendHandler(event.NickName)
 	}
 }

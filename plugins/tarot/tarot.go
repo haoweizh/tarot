@@ -7,7 +7,6 @@ import (
 	"github.com/songtianyi/rrframework/logs"
 	"fmt"
 	"tarot/util"
-	"time"
 )
 
 // register plugin
@@ -110,5 +109,4 @@ func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 		SentenceType: sentenceType, NickName: contact.NickName, FromTarotStatus: myContact.TarotStatus, ToTarotStatus: toTarotStatus}
 	util.Info(fmt.Sprintf("%s play tarot with sentence %s", contact.NickName, sentenceType))
 	model.SendChannel <- event
-	time.Sleep(time.Second * 10)
 }

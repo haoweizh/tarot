@@ -40,6 +40,7 @@ func main() {
 	model.DB.AutoMigrate(&model.MyContact{})
 	model.DB.AutoMigrate(&model.TarotSentence{})
 	model.DB.AutoMigrate(&model.TarotLog{})
+	model.ApplicationEvents = model.NewEvents()
 
 	go function.ProcessLogin()
 	model.AppBot.SetAfterLogin(func() (err error) {
