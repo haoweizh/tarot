@@ -14,6 +14,9 @@ func sendHandler(nickName string) {
 		time.Sleep(time.Second * 3)
 	}
 	event := model.ApplicationEvents.RemoveEvent(nickName)
+	if event == nil {
+		return
+	}
 	if event.FromTarotStatus != 0 && event.ToTarotStatus != 0 && event.FromTarotStatus != event.ToTarotStatus {
 		model.DB.Model(&model.MyContact{}).Where(`nick_name=?`, event.NickName).
 			Updates(map[string]interface{}{`tarot_status`: event.ToTarotStatus, `updated_at`: time.Now()})

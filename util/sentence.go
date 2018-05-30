@@ -13,6 +13,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+var lastSendTime int64
+
 func SendTarotMsg(from, to string, sentenceType string) {
 	content, err := getSentence(sentenceType)
 	if err != nil {
@@ -34,6 +36,11 @@ func SendTarotMsg(from, to string, sentenceType string) {
 	sentences, _ := j.Get(`data`).StringArray()
 	regNum := regexp.MustCompile(`\d+`)
 	for _, value := range sentences {
+		now := time.Now().Unix()
+		if now <= lastSendTime+1 {
+			time.Sleep(time.Second * 1)
+		}
+		lastSendTime = now
 		if strings.Contains(value, `tarotsleep`) {
 			sleepSeconds := regNum.FindAllString(value, -1)
 			if len(sleepSeconds) == 1 {

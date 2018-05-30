@@ -68,7 +68,7 @@ func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 	model.DB.Where("nick_name = ? AND tarot_nick_name = ?",
 		contact.NickName, session.Bot.NickName).First(&myContact)
 	if (myContact.TarotStatus >= 101 && myContact.TarotStatus <= 104) ||
-		(myContact.TarotStatus >= 501 && myContact.TarotStatus <= 503) ||
+		(myContact.TarotStatus >= 500 && myContact.TarotStatus <= 503) ||
 		(myContact.TarotStatus >= 510 && myContact.TarotStatus <= 515) ||
 		(myContact.TarotStatus >= 520 && myContact.TarotStatus <= 525) ||
 		(myContact.TarotStatus >= 530 && myContact.TarotStatus <= 533) || myContact.TarotStatus == 584 ||
