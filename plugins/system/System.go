@@ -44,7 +44,7 @@ func system(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 			//model.DB.Save(myContact)
 		}
 		event := model.TarotEvent{FromUserName: session.Bot.UserName, ToUserName: msg.RecommendInfo.UserName,
-			SentenceType: `1-101`, NickName: msg.RecommendInfo.NickName, FromTarotStatus: 0, ToTarotStatus: 101}
+			SentenceType: `1-101`, NickName: msg.RecommendInfo.NickName, FromTarotStatus: 1, ToTarotStatus: 101}
 		model.SendChannel <- event
 	}
 }
