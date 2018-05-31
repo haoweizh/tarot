@@ -68,6 +68,10 @@ func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 			Update(map[string]interface{}{"tarot_status": 1})
 		return
 	}
+	if msg.MsgType == wxweb.MSG_SYS && strings.Contains(msg.Content, `已经添加了`) {
+		// 忽略好友验证通过信息
+		return
+	}
 	var toTarotStatus = 0
 	var sentenceType string
 	var myContact model.MyContact
@@ -80,7 +84,7 @@ func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 		(myContact.TarotStatus >= 530 && myContact.TarotStatus <= 533) || myContact.TarotStatus == 584 ||
 		myContact.TarotStatus == 585 || myContact.TarotStatus == 594 || myContact.TarotStatus == 595 ||
 		(myContact.TarotStatus >= 600 && myContact.TarotStatus <= 602) {
-		toTarotStatus = receiveAny(myContact.TarotStatus, msg.MsgType)
+		toTarotStatus = receiveAny(myContact.TarotStatus)
 	} else if (myContact.TarotStatus >= 200 && myContact.TarotStatus <= 211) || myContact.TarotStatus == 603 {
 		toTarotStatus = receiveCheckImg(myContact.TarotStatus, msg.MsgType)
 	} else if myContact.TarotStatus == 212 {
