@@ -36,12 +36,11 @@ func system(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 			UserName: msg.RecommendInfo.UserName, City: msg.RecommendInfo.City, Sex: msg.RecommendInfo.Sex})
 		logs.Info("accept user apply with name of %s", myContact.NickName)
 		if model.DB.NewRecord(&myContact) {
-			myContact.TarotStatus = 1
 			logs.Info("new contact added %s of %s", myContact.NickName, model.AppBot.Bot.NickName)
 			model.DB.Create(&myContact)
 		} else {
 			logs.Info("do not update contact user nick %s of %s", myContact.NickName, model.AppBot.Bot.NickName)
-			//model.DB.Save(myContact)
+			model.DB.Save(myContact)
 		}
 		event := model.TarotEvent{FromUserName: session.Bot.UserName, ToUserName: msg.RecommendInfo.UserName,
 			SentenceType: `1-101`, NickName: msg.RecommendInfo.NickName, FromTarotStatus: 1, ToTarotStatus: 101}
