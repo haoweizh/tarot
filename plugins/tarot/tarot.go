@@ -68,7 +68,8 @@ func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 			Update(map[string]interface{}{"tarot_status": 1})
 		return
 	}
-	if msg.MsgType == wxweb.MSG_SYS && strings.Contains(msg.Content, `已经添加了`) {
+	if msg.MsgType == wxweb.MSG_SYS && (strings.Contains(msg.Content, `已经添加了`) ||
+		strings.Contains(msg.Content, `以上是打招呼`)) {
 		// 忽略好友验证通过信息
 		return
 	}
