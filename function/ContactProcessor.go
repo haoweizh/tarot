@@ -9,7 +9,7 @@ import (
 )
 
 func sendHandler(nickName string) {
-	for model.ApplicationEvents.GetUnNilAmount() > 2 {
+	for model.ApplicationEvents.GetUnNilAmount() > 20 {
 		util.SocketInfo(fmt.Sprintf(`more than 2 events in nickEvents, sleep 3 seconds`))
 		time.Sleep(time.Second * 3)
 	}
