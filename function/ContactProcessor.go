@@ -17,7 +17,7 @@ func sendHandler(nickName string) {
 	if event == nil {
 		return
 	}
-	if event.FromTarotStatus != 0 && event.ToTarotStatus != 0 && event.FromTarotStatus != event.ToTarotStatus {
+	if event.FromTarotStatus != event.ToTarotStatus {
 		model.DB.Model(&model.MyContact{}).Where(`nick_name=?`, event.NickName).
 			Updates(map[string]interface{}{`tarot_status`: event.ToTarotStatus, `updated_at`: time.Now()})
 	}

@@ -62,6 +62,12 @@ func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 			Update(map[string]interface{}{"tarot_status": 101})
 		return
 	}
+	if msg.MsgType == wxweb.MSG_SYS && strings.Contains(msg.Content, `验证`) {
+		model.DB.Table("my_contacts").Where("nick_name = ? AND tarot_nick_name = ?",
+			contact.NickName, session.Bot.NickName).
+			Update(map[string]interface{}{"tarot_status": 000})
+		return
+	}
 	var toTarotStatus = 0
 	var sentenceType string
 	var myContact model.MyContact

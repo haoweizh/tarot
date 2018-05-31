@@ -95,11 +95,8 @@ func CheckTime(fromTarotStatus int, updatedAt time.Time) (toTarotStatus int) {
 	}
 	// 用户30～60秒没有回复
 	if triggerByWaitTime(updatedAt, 30, 60) {
-		if fromTarotStatus == 101 || fromTarotStatus == 301 {
+		if fromTarotStatus == 101 {
 			return fromTarotStatus + 1
-		}
-		if fromTarotStatus == 200 {
-			return 202
 		}
 	}
 	// 用户3小时没有回复
@@ -114,11 +111,16 @@ func CheckTime(fromTarotStatus int, updatedAt time.Time) (toTarotStatus int) {
 			return 503
 		}
 	}
+	// 用户20～30分钟没有回复
+	if triggerByWaitTime(updatedAt, 1200, 1800) {
+		if fromTarotStatus == 401 {
+			return 402
+		}
+	}
 	// 用户8～12分钟没有回复
 	if triggerByWaitTime(updatedAt, 480, 720) {
 		if fromTarotStatus == 102 || fromTarotStatus == 103 || (fromTarotStatus >= 201 && fromTarotStatus <= 204) ||
-			fromTarotStatus == 302 || fromTarotStatus == 303 || fromTarotStatus == 304 ||
-			fromTarotStatus == 401 || fromTarotStatus == 402 {
+			(fromTarotStatus >= 301 && fromTarotStatus <= 304) || fromTarotStatus == 402 {
 			return fromTarotStatus + 1
 		}
 		if (fromTarotStatus >= 206 && fromTarotStatus <= 209) || fromTarotStatus == 311 || fromTarotStatus == 312 {
@@ -135,6 +137,9 @@ func CheckTime(fromTarotStatus int, updatedAt time.Time) (toTarotStatus int) {
 		}
 		if fromTarotStatus == 403 || fromTarotStatus == 404 {
 			return 504
+		}
+		if fromTarotStatus == 200 {
+			return 202
 		}
 	}
 	return 0

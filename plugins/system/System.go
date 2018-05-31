@@ -43,6 +43,9 @@ func system(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 			logs.Info("do not update contact user nick %s of %s", myContact.NickName, model.AppBot.Bot.NickName)
 			//model.DB.Save(myContact)
 		}
+		event := model.TarotEvent{FromUserName: session.Bot.UserName, ToUserName: msg.RecommendInfo.UserName,
+		SentenceType: `000-101`, NickName: msg.RecommendInfo.NickName, FromTarotStatus: 000, ToTarotStatus: 101}
+		model.SendChannel <- event
 	}
 
 	logs.Debug(msg)
