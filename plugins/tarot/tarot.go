@@ -118,6 +118,6 @@ func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 	model.DB.Save(tarotLog)
 	event := model.TarotEvent{FromUserName: session.Bot.UserName, ToUserName: contact.UserName,
 		SentenceType: sentenceType, NickName: contact.NickName, FromTarotStatus: myContact.TarotStatus, ToTarotStatus: toTarotStatus}
-	util.Info(fmt.Sprintf("%s play tarot with sentence %s", contact.NickName, sentenceType))
+	util.Info(fmt.Sprintf("%s play tarot with sentence %s %d %s", contact.NickName, sentenceType, msg.MsgType, msg.Content))
 	model.SendChannel <- event
 }

@@ -50,7 +50,7 @@ func SyncContact() {
 			util.Info(myContact.NickName + " is added as nick of " + model.AppBot.Bot.NickName)
 			model.DB.Create(myContact)
 		} else {
-			util.Info(myContact.NickName + " do not updated as nick of " + model.AppBot.Bot.NickName)
+			//util.Info(myContact.NickName + " do not updated as nick of " + model.AppBot.Bot.NickName)
 			//model.DB.Save(myContact)
 		}
 	}
