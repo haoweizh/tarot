@@ -8,17 +8,16 @@ import (
 	"tarot/plugins/tarot"
 )
 
-func sendHandler(nickName string) {
+func sendHandler(event *model.TarotEvent) {
 	for model.ApplicationEvents.GetUnNilAmount() > 50 {
 		util.SocketInfo(fmt.Sprintf(`more than 2 events in nickEvents, sleep 3 seconds`))
 		time.Sleep(time.Second * 3)
 	}
-	event := model.ApplicationEvents.RemoveEvent(nickName)
 	if event == nil {
 		return
 	}
 	if event.FromTarotStatus != event.ToTarotStatus {
-		util.Info(fmt.Sprintf(`%s update status from %d to %d`, nickName, event.FromTarotStatus,
+		util.Info(fmt.Sprintf(`%s update status from %d to %d`, event.NickName, event.FromTarotStatus,
 			event.ToTarotStatus))
 		model.DB.Model(&model.MyContact{}).Where(`nick_name=?`, event.NickName).
 			Updates(map[string]interface{}{`tarot_status`: event.ToTarotStatus, `updated_at`: time.Now()})
@@ -27,7 +26,8 @@ func sendHandler(nickName string) {
 	if bytes[0] == '@' && bytes[1] == '@' { //过滤掉@@开头的userName(微信群)
 		return
 	}
-	util.SendTarotMsg(nickName, event.FromUserName, event.ToUserName, event.SentenceType)
+	util.SendTarotMsg(event.NickName, event.FromUserName, event.ToUserName, event.SentenceType)
+	model.ApplicationEvents.RemoveEvent(event.NickName)
 }
 
 func PlayTarot() {
@@ -64,6 +64,6 @@ func SendChannelServe() {
 	for true {
 		event := <-model.SendChannel
 		model.ApplicationEvents.PutEvent(event.NickName, &event)
-		go sendHandler(event.NickName)
+		go sendHandler(&event)
 	}
 }
