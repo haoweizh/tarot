@@ -65,7 +65,7 @@ func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 	if msg.MsgType == wxweb.MSG_SYS && strings.Contains(msg.Content, `验证`) {
 		model.DB.Table("my_contacts").Where("nick_name = ? AND tarot_nick_name = ?",
 			contact.NickName, session.Bot.NickName).
-			Update(map[string]interface{}{"tarot_status": 000})
+			Update(map[string]interface{}{"tarot_status": 1})
 		return
 	}
 	var toTarotStatus = 0
@@ -80,7 +80,7 @@ func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 		(myContact.TarotStatus >= 530 && myContact.TarotStatus <= 533) || myContact.TarotStatus == 584 ||
 		myContact.TarotStatus == 585 || myContact.TarotStatus == 594 || myContact.TarotStatus == 595 ||
 		(myContact.TarotStatus >= 600 && myContact.TarotStatus <= 602) {
-		toTarotStatus = receiveAny(myContact.TarotStatus)
+		toTarotStatus = receiveAny(myContact.TarotStatus, msg.MsgType)
 	} else if (myContact.TarotStatus >= 200 && myContact.TarotStatus <= 211) || myContact.TarotStatus == 603 {
 		toTarotStatus = receiveCheckImg(myContact.TarotStatus, msg.MsgType)
 	} else if myContact.TarotStatus == 212 {

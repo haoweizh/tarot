@@ -211,7 +211,11 @@ func receiveBeginTarot(fromTarotStatus int, content string) (toTarotStatus int) 
 	return 0
 }
 
-func receiveAny(fromTarotStatus int) (toTarotStatus int) {
+func receiveAny(fromTarotStatus, msgType int) (toTarotStatus int) {
+	// 过滤掉消息验证完成消息
+	if fromTarotStatus == 101 && msgType == wxweb.MSG_SYS {
+		return
+	}
 	if fromTarotStatus >= 101 && fromTarotStatus <= 104 {
 		return 201
 	}
