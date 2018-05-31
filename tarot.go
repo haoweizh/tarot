@@ -7,7 +7,6 @@ import (
 
 	"tarot/model"
 	"tarot/wechat-go/wxweb"
-	"tarot/plugins/system"
 	"tarot/plugins/tarot"
 	"tarot/function"
 )
@@ -20,17 +19,7 @@ func main() {
 		logs.Error(err)
 		return
 	}
-	system.Register(model.AppBot)
 	tarot.Register(model.AppBot)
-
-	//if err := model.AppBot.HandlerRegister.EnableByType(wxweb.MSG_SYS); err != nil {
-	//	logs.Error(err)
-	//	return
-	//}
-	//if err := model.AppBot.HandlerRegister.EnableByType(wxweb.MSG_IMG); err != nil {
-	//	logs.Error(err)
-	//	return
-	//}
 	model.DB, err = gorm.Open("postgres", model.DBConnection)
 	if err != nil {
 		logs.Warn(err)

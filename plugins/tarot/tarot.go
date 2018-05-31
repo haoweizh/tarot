@@ -20,6 +20,7 @@ func Register(session *wxweb.Session) {
 	session.HandlerRegister.Add(wxweb.MSG_LOCATION, wxweb.Handler(listenCmd), "tarotLocation")
 	session.HandlerRegister.Add(wxweb.MSG_VOICE, wxweb.Handler(listenCmd), "tarotVoice")
 	session.HandlerRegister.Add(wxweb.MSG_VIDEO, wxweb.Handler(listenCmd), "tarotVideo")
+	session.HandlerRegister.Add(wxweb.MSG_FV, wxweb.Handler(listenCmd), "system-fv")
 	if err := session.HandlerRegister.EnableByName("tarotText"); err != nil {
 		logs.Error(err)
 	}
@@ -47,6 +48,9 @@ func Register(session *wxweb.Session) {
 	if err := session.HandlerRegister.EnableByName("tarotVideo"); err != nil {
 		logs.Error(err)
 	}
+	if err := session.HandlerRegister.EnableByName("system-fv"); err != nil {
+		logs.Error(err)
+	}
 }
 
 func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
@@ -56,22 +60,45 @@ func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 		logs.Error("no this contact, ignore", msg.FromUserName)
 		return
 	}
-	if msg.MsgType == wxweb.MSG_TEXT && strings.Contains(msg.Content, "唧唧复唧唧") {
-		model.DB.Table("my_contacts").Where("nick_name = ? AND tarot_nick_name = ?",
-			contact.NickName, session.Bot.NickName).
-			Update(map[string]interface{}{"tarot_status": 101})
+	switch msg.MsgType {
+	case wxweb.MSG_FV:
+		session.AcceptFriend("", []*wxweb.VerifyUser{{Value: msg.RecommendInfo.UserName,
+			VerifyUserTicket: msg.RecommendInfo.Ticket}})
+		myContact := model.MyContact{NickName: msg.RecommendInfo.NickName, TarotNickName: model.AppBot.Bot.NickName}
+		model.DB.Where("nick_name = ? AND tarot_nick_name = ?", myContact.NickName, model.AppBot.Bot.NickName).
+			First(&myContact)
+		model.AppBot.Cm.AddUser(&wxweb.User{NickName: msg.RecommendInfo.NickName,
+			UserName: msg.RecommendInfo.UserName, City: msg.RecommendInfo.City, Sex: msg.RecommendInfo.Sex})
+		logs.Info("accept user apply with name of %s", myContact.NickName)
+		myContact.TarotStatus = 1
+		if model.DB.NewRecord(&myContact) {
+			logs.Info("new contact added %s of %s", myContact.NickName, model.AppBot.Bot.NickName)
+			model.DB.Create(&myContact)
+		} else {
+			model.DB.Save(&myContact)
+		}
+		event := model.TarotEvent{FromUserName: session.Bot.UserName, ToUserName: msg.RecommendInfo.UserName,
+			SentenceType: `1-101`, NickName: msg.RecommendInfo.NickName, FromTarotStatus: 1, ToTarotStatus: 101}
+		model.SendChannel <- event
 		return
-	}
-	if msg.MsgType == wxweb.MSG_SYS && strings.Contains(msg.Content, `验证`) {
-		model.DB.Table("my_contacts").Where("nick_name = ? AND tarot_nick_name = ?",
-			contact.NickName, session.Bot.NickName).
-			Update(map[string]interface{}{"tarot_status": 1})
-		return
-	}
-	if msg.MsgType == wxweb.MSG_SYS && (strings.Contains(msg.Content, `已经添加了`) ||
-		strings.Contains(msg.Content, `以上是打招呼`)) {
-		// 忽略好友验证通过信息
-		return
+	case wxweb.MSG_TEXT:
+		if strings.Contains(msg.Content, "唧唧复唧唧") {
+			model.DB.Table("my_contacts").Where("nick_name = ? AND tarot_nick_name = ?",
+				contact.NickName, session.Bot.NickName).
+				Update(map[string]interface{}{"tarot_status": 101})
+			return
+		}
+	case wxweb.MSG_SYS:
+		if strings.Contains(msg.Content, `验证`) {
+			model.DB.Table("my_contacts").Where("nick_name = ? AND tarot_nick_name = ?",
+				contact.NickName, session.Bot.NickName).
+				Update(map[string]interface{}{"tarot_status": 1})
+			return
+		}
+		if strings.Contains(msg.Content, `已经添加了`) || strings.Contains(msg.Content, `以上是打招呼`) {
+			// 忽略好友验证通过信息
+			return
+		}
 	}
 	var toTarotStatus = 0
 	var sentenceType string
