@@ -84,28 +84,21 @@ func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 				Update(map[string]interface{}{"tarot_status": 101})
 			return
 		}
-	case wxweb.MSG_SYS:
-		if strings.Contains(msg.Content, `验证`) {
-			model.DB.Table("my_contacts").Where("nick_name = ? AND tarot_nick_name = ?",
-				contact.NickName, session.Bot.NickName).
-				Update(map[string]interface{}{"tarot_status": 1})
-			return
-		}
-		if strings.Contains(msg.Content, `已经添加了`) || strings.Contains(msg.Content, `以上是打招呼`) {
-			// 忽略好友验证通过信息
-			return
-		}
 	}
+	contact = session.Cm.GetContactByUserName(msg.FromUserName)
 	var toTarotStatus = 0
 	var sentenceType string
 	var myContact model.MyContact
-	contact = session.Cm.GetContactByUserName(msg.FromUserName)
-	if contact == nil {
+	model.DB.Where("nick_name = ? AND tarot_nick_name = ?",
+		contact.NickName, session.Bot.NickName).First(&myContact)
+	if &myContact == nil || contact == nil {
 		util.Notice(`nil contact`)
 		return
 	}
-	model.DB.Where("nick_name = ? AND tarot_nick_name = ?",
-		contact.NickName, session.Bot.NickName).First(&myContact)
+	if msg.MsgType == wxweb.MSG_SYS && myContact.TarotStatus <= 201 {
+		util.Notice(`ignore sys message before tarot status 201`)
+		return
+	}
 	if (myContact.TarotStatus >= 101 && myContact.TarotStatus <= 104) ||
 		(myContact.TarotStatus >= 500 && myContact.TarotStatus <= 503) ||
 		(myContact.TarotStatus >= 510 && myContact.TarotStatus <= 515) ||
