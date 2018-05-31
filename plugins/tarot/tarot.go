@@ -4,7 +4,6 @@ import (
 	"tarot/wechat-go/wxweb"
 	"strings"
 	"tarot/model"
-	"github.com/songtianyi/rrframework/logs"
 	"fmt"
 	"tarot/util"
 )
@@ -22,57 +21,54 @@ func Register(session *wxweb.Session) {
 	session.HandlerRegister.Add(wxweb.MSG_VIDEO, wxweb.Handler(listenCmd), "tarotVideo")
 	session.HandlerRegister.Add(wxweb.MSG_FV, wxweb.Handler(listenCmd), "system-fv")
 	if err := session.HandlerRegister.EnableByName("tarotText"); err != nil {
-		logs.Error(err)
+		util.Notice(err.Error())
 	}
 	if err := session.HandlerRegister.EnableByName("tarotImg"); err != nil {
-		logs.Error(err)
+		util.Notice(err.Error())
 	}
 	if err := session.HandlerRegister.EnableByName("tarotSys"); err != nil {
-		logs.Error(err)
+		util.Notice(err.Error())
 	}
 	if err := session.HandlerRegister.EnableByName("tarotEmotion"); err != nil {
-		logs.Error(err)
+		util.Notice(err.Error())
 	}
 	if err := session.HandlerRegister.EnableByName("tarotLink"); err != nil {
-		logs.Error(err)
+		util.Notice(err.Error())
 	}
 	if err := session.HandlerRegister.EnableByName("tarotShortVideo"); err != nil {
-		logs.Error(err)
+		util.Notice(err.Error())
 	}
 	if err := session.HandlerRegister.EnableByName("tarotLocation"); err != nil {
-		logs.Error(err)
+		util.Notice(err.Error())
 	}
 	if err := session.HandlerRegister.EnableByName("tarotVoice"); err != nil {
-		logs.Error(err)
+		util.Notice(err.Error())
 	}
 	if err := session.HandlerRegister.EnableByName("tarotVideo"); err != nil {
-		logs.Error(err)
+		util.Notice(err.Error())
 	}
 	if err := session.HandlerRegister.EnableByName("system-fv"); err != nil {
-		logs.Error(err)
+		util.Notice(err.Error())
 	}
 }
 
 func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 	// contact filter
 	contact := session.Cm.GetContactByUserName(msg.FromUserName)
-	if contact == nil {
-		logs.Error("no this contact, ignore", msg.FromUserName)
-		return
-	}
 	switch msg.MsgType {
 	case wxweb.MSG_FV:
+		util.Info(`get msg_fv`)
 		session.AcceptFriend("", []*wxweb.VerifyUser{{Value: msg.RecommendInfo.UserName,
 			VerifyUserTicket: msg.RecommendInfo.Ticket}})
+		model.AppBot.Cm.AddUser(&wxweb.User{NickName: msg.RecommendInfo.NickName,
+			UserName: msg.RecommendInfo.UserName, City: msg.RecommendInfo.City, Sex: msg.RecommendInfo.Sex})
 		myContact := model.MyContact{NickName: msg.RecommendInfo.NickName, TarotNickName: model.AppBot.Bot.NickName}
 		model.DB.Where("nick_name = ? AND tarot_nick_name = ?", myContact.NickName, model.AppBot.Bot.NickName).
 			First(&myContact)
-		model.AppBot.Cm.AddUser(&wxweb.User{NickName: msg.RecommendInfo.NickName,
-			UserName: msg.RecommendInfo.UserName, City: msg.RecommendInfo.City, Sex: msg.RecommendInfo.Sex})
-		logs.Info("accept user apply with name of %s", myContact.NickName)
+		util.Info(fmt.Sprintf("accept user apply with name of %s", myContact.NickName))
 		myContact.TarotStatus = 1
 		if model.DB.NewRecord(&myContact) {
-			logs.Info("new contact added %s of %s", myContact.NickName, model.AppBot.Bot.NickName)
+			util.Info(fmt.Sprintf("new contact added %s of %s", myContact.NickName, model.AppBot.Bot.NickName))
 			model.DB.Create(&myContact)
 		} else {
 			model.DB.Save(&myContact)
@@ -103,6 +99,11 @@ func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 	var toTarotStatus = 0
 	var sentenceType string
 	var myContact model.MyContact
+	contact = session.Cm.GetContactByUserName(msg.FromUserName)
+	if contact == nil {
+		util.Notice(`nil contact`)
+		return
+	}
 	model.DB.Where("nick_name = ? AND tarot_nick_name = ?",
 		contact.NickName, session.Bot.NickName).First(&myContact)
 	if (myContact.TarotStatus >= 101 && myContact.TarotStatus <= 104) ||
