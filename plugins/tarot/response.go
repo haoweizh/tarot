@@ -93,8 +93,8 @@ func CheckTime(fromTarotStatus int, updatedAt time.Time) (toTarotStatus int) {
 			return 602
 		}
 	}
-	// 用户30～60秒没有回复
-	if triggerByWaitTime(updatedAt, 30, 60) {
+	// 用户6分钟没有回复
+	if triggerByWaitTime(updatedAt, 360, 360) {
 		if fromTarotStatus == 101 {
 			return fromTarotStatus + 1
 		}
