@@ -9,7 +9,7 @@ import (
 )
 
 func sendHandler(nickName string) {
-	for model.ApplicationEvents.GetUnNilAmount() > 20 {
+	for model.ApplicationEvents.GetUnNilAmount() > 50 {
 		util.SocketInfo(fmt.Sprintf(`more than 2 events in nickEvents, sleep 3 seconds`))
 		time.Sleep(time.Second * 3)
 	}
@@ -25,7 +25,7 @@ func sendHandler(nickName string) {
 	if bytes[0] == '@' && bytes[1] == '@' { //过滤掉@@开头的userName(微信群)
 		return
 	}
-	util.SendTarotMsg(event.FromUserName, event.ToUserName, event.SentenceType)
+	util.SendTarotMsg(nickName, event.FromUserName, event.ToUserName, event.SentenceType)
 }
 
 func PlayTarot() {
