@@ -10,10 +10,10 @@ import (
 
 func sendHandler(event *model.TarotEvent) {
 	util.SocketInfo(`try to send event ` + event.NickName + event.SentenceType)
-	for model.ApplicationEvents.GetUnNilAmount() > 50 {
-		util.SocketInfo(fmt.Sprintf(`more than 2 events in nickEvents, sleep 3 seconds`))
-		time.Sleep(time.Second * 3)
-	}
+	//for model.ApplicationEvents.GetUnNilAmount() > 50 {
+	//	util.SocketInfo(fmt.Sprintf(`more than 2 events in nickEvents, sleep 3 seconds`))
+	//	time.Sleep(time.Second * 3)
+	//}
 	if event == nil {
 		return
 	}
@@ -58,7 +58,7 @@ func PlayTarot() {
 				model.SendChannel <- event
 			}
 		}
-		time.Sleep(time.Second * 60)
+		time.Sleep(time.Second * 10)
 	}
 }
 
