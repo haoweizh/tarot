@@ -63,6 +63,9 @@ func PlayTarot() {
 func SendChannelServe() {
 	for true {
 		event := <-model.SendChannel
+		if model.ApplicationEvents.GetEvent(event.NickName) != nil {
+			return
+		}
 		model.ApplicationEvents.PutEvent(event.NickName, &event)
 		go sendHandler(&event)
 	}

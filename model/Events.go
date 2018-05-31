@@ -37,6 +37,12 @@ func (events *Events) RemoveEvent(nickName string) *TarotEvent {
 	return event
 }
 
+func (events *Events) GetEvent(nickName string) (event *TarotEvent) {
+	events.lock.Lock()
+	defer events.lock.Unlock()
+	return events.nickEvents[nickName]
+}
+
 func (events *Events) PutEvent(nickName string, event *TarotEvent) {
 	events.lock.Lock()
 	defer events.lock.Unlock()
