@@ -86,13 +86,16 @@ func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 		}
 	}
 	contact = session.Cm.GetContactByUserName(msg.FromUserName)
+	if contact == nil {
+		util.Notice(`nil contact`)
+		return
+	}
 	var toTarotStatus = 0
 	var sentenceType string
 	var myContact model.MyContact
-	model.DB.Where("nick_name = ? AND tarot_nick_name = ?",
-		contact.NickName, session.Bot.NickName).First(&myContact)
-	if &myContact == nil || contact == nil {
-		util.Notice(`nil contact`)
+	model.DB.Where("nick_name = ? AND tarot_nick_name = ?", contact.NickName, session.Bot.NickName).First(&myContact)
+	if &myContact == nil {
+		util.Notice(`nil my_contact`)
 		return
 	}
 	if msg.MsgType == wxweb.MSG_SYS && myContact.TarotStatus <= 201 {
