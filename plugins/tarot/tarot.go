@@ -6,6 +6,7 @@ import (
 	"tarot/model"
 	"fmt"
 	"tarot/util"
+	"time"
 )
 
 // register plugin
@@ -82,6 +83,12 @@ func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 			model.DB.Table("my_contacts").Where("nick_name = ? AND tarot_nick_name = ?",
 				contact.NickName, session.Bot.NickName).
 				Update(map[string]interface{}{"tarot_status": 101})
+			return
+		}
+	case wxweb.MSG_SYS:
+		if strings.Contains(util.FilterByte(msg.Content, '\n'), "对方验证通过后") {
+			model.DB.Model(&model.MyContact{}).Where(`nick_name=?`, msg.RecommendInfo.NickName).
+				Updates(map[string]interface{}{`tarot_status`: 1, `updated_at`: time.Now()})
 			return
 		}
 	}
