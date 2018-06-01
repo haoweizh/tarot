@@ -87,8 +87,12 @@ func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 		}
 	case wxweb.MSG_SYS:
 		if strings.Contains(util.FilterByte(msg.Content, '\n'), "对方验证通过后") {
-			model.DB.Model(&model.MyContact{}).Where(`nick_name=?`, msg.RecommendInfo.NickName).
-				Updates(map[string]interface{}{`tarot_status`: 1, `updated_at`: time.Now()})
+			if msg.RecommendInfo != nil {
+				model.DB.Model(&model.MyContact{}).Where(`nick_name=?`, msg.RecommendInfo.NickName).
+					Updates(map[string]interface{}{`tarot_status`: 1, `updated_at`: time.Now()})
+			} else {
+				util.Info(`msg do not have recommend Info`)
+			}
 			return
 		}
 	}
