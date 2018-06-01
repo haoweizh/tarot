@@ -9,7 +9,6 @@ import (
 	"math/rand"
 	"github.com/bitly/go-simplejson"
 	"strings"
-	"hello/util"
 	"github.com/pkg/errors"
 )
 
@@ -18,7 +17,7 @@ var lastSendTime int64
 func SendTarotMsg(nickName, from, to string, sentenceType string) {
 	content, err := getSentence(sentenceType)
 	if err != nil {
-		util.Notice(content + ` can not get sentence` + err.Error())
+		Notice(content + ` can not get sentence` + err.Error())
 		return
 	}
 	bytes := []byte(content)
@@ -30,7 +29,7 @@ func SendTarotMsg(nickName, from, to string, sentenceType string) {
 	}
 	j, err := simplejson.NewJson(jsonBytes)
 	if err != nil {
-		util.Notice(content + ` can not parse json ` + err.Error())
+		Notice(content + ` can not parse json ` + err.Error())
 		return
 	}
 	sentences, _ := j.Get(`data`).StringArray()
@@ -51,7 +50,7 @@ func SendTarotMsg(nickName, from, to string, sentenceType string) {
 				left, _ := strconv.ParseInt(sleepSeconds[0], 10, 64)
 				time.Sleep(time.Duration(left+rand.Int63n(right-left)) * time.Second)
 			} else {
-				util.Notice(`wrong format for sleep from content: ` + value)
+				Notice(`wrong format for sleep from content: ` + value)
 			}
 		} else if strings.Contains(value, `tarotfile`) {
 			bytes := []byte(value)
