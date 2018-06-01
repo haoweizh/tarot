@@ -9,7 +9,7 @@ import (
 )
 
 func sendHandler(event *model.TarotEvent) {
-	util.SocketInfo(`try to send event ` + event.NickName + event.SentenceType)
+	util.Info(`try to send event ` + event.NickName + event.SentenceType)
 	//for model.ApplicationEvents.GetUnNilAmount() > 50 {
 	//	util.SocketInfo(fmt.Sprintf(`more than 2 events in nickEvents, sleep 3 seconds`))
 	//	time.Sleep(time.Second * 3)
@@ -18,7 +18,7 @@ func sendHandler(event *model.TarotEvent) {
 		return
 	}
 	if event.FromTarotStatus != event.ToTarotStatus {
-		util.SocketInfo(`save db event ` + event.NickName + event.SentenceType)
+		util.Info(`save db event ` + event.NickName + event.SentenceType)
 		util.Info(fmt.Sprintf(`%s update status from %d to %d`, event.NickName, event.FromTarotStatus,
 			event.ToTarotStatus))
 		model.DB.Model(&model.MyContact{}).Where(`nick_name=?`, event.NickName).
@@ -65,10 +65,12 @@ func PlayTarot() {
 func SendChannelServe() {
 	for true {
 		event := <-model.SendChannel
+		util.Info(fmt.Sprintf(`get event of %s from channel with %s from %d to %d`,
+			event.NickName, event.SentenceType, event.FromTarotStatus, event.ToTarotStatus))
 		currentEvent := model.ApplicationEvents.GetEvent(event.NickName)
 		if currentEvent != nil {
 			util.SocketInfo(event.NickName + `old event ` + currentEvent.SentenceType + ` abandon ` + event.SentenceType)
-			return
+			continue
 		}
 		model.ApplicationEvents.PutEvent(event.NickName, &event)
 		go sendHandler(&event)
