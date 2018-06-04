@@ -42,6 +42,24 @@ func triggerByWaitTime(updatedAt time.Time, waitSeconds, endSeconds int64) bool 
 }
 
 func CheckTime(fromTarotStatus int, updatedAt time.Time) (toTarotStatus int) {
+	// 进入该状态满30天，接下来的21点～24点间随机择时
+	if triggerBySecondOfDay(updatedAt, 2592000, 75600, 86400) {
+		if fromTarotStatus == 600 {
+			return 601
+		}
+	}
+	// 进入该状态满30天
+	if triggerByWaitTime(updatedAt, 2592000, 2592000) {
+		if fromTarotStatus == 601 {
+			return 602
+		}
+	}
+	// 进入该状态满10天，接下来的21点～24点间随机择时
+	if triggerBySecondOfDay(updatedAt, 864000, 75600, 86400) {
+		if fromTarotStatus >= 530 && fromTarotStatus <= 533 {
+			return 600
+		}
+	}
 	// 进入该状态满7天，接下来的21点～24点间随机择时
 	if triggerBySecondOfDay(updatedAt, 604800, 75600, 86400) {
 		if fromTarotStatus == 504 || fromTarotStatus == 594 {
@@ -57,28 +75,16 @@ func CheckTime(fromTarotStatus int, updatedAt time.Time) (toTarotStatus int) {
 			return 600
 		}
 	}
-	// 进入该状态满48小时，接下来的21点～24点间随机择时
-	if triggerBySecondOfDay(updatedAt, 172800, 75600, 86400) {
-		if (fromTarotStatus >= 500 && fromTarotStatus <= 503) || (fromTarotStatus >= 510 && fromTarotStatus <= 513) {
-			return fromTarotStatus + 10
-		}
-	}
 	// 进入该状态满3天，接下来的21点～24点间随机择时
 	if triggerBySecondOfDay(updatedAt, 259200, 75600, 86400) {
 		if (fromTarotStatus >= 520 && fromTarotStatus <= 523) || fromTarotStatus == 514 || fromTarotStatus == 515 {
 			return fromTarotStatus + 10
 		}
 	}
-	// 进入该状态满30天，接下来的21点～24点间随机择时
-	if triggerBySecondOfDay(updatedAt, 2592000, 75600, 86400) {
-		if fromTarotStatus == 600 {
-			return 601
-		}
-	}
-	// 进入该状态满10天，接下来的21点～24点间随机择时
-	if triggerBySecondOfDay(updatedAt, 864000, 75600, 86400) {
-		if fromTarotStatus >= 530 && fromTarotStatus <= 533 {
-			return 600
+	// 进入该状态满48小时，接下来的21点～24点间随机择时
+	if triggerBySecondOfDay(updatedAt, 172800, 75600, 86400) {
+		if (fromTarotStatus >= 500 && fromTarotStatus <= 503) || (fromTarotStatus >= 510 && fromTarotStatus <= 513) {
+			return fromTarotStatus + 10
 		}
 	}
 	// 进入该状态满12小时后
@@ -87,21 +93,9 @@ func CheckTime(fromTarotStatus int, updatedAt time.Time) (toTarotStatus int) {
 			return 500
 		}
 	}
-	// 进入该状态满30天
-	if triggerByWaitTime(updatedAt, 2592000, 2592000) {
-		if fromTarotStatus == 601 {
-			return 602
-		}
-	}
-	// 用户6分钟没有回复
-	if triggerByWaitTime(updatedAt, 360, 360) {
-		if fromTarotStatus == 101 {
-			return fromTarotStatus + 1
-		}
-	}
 	// 用户3小时没有回复
 	if triggerByWaitTime(updatedAt, 10800, 10800) {
-		if fromTarotStatus == 101 {
+		if fromTarotStatus == 104 {
 			return 501
 		}
 		if fromTarotStatus == 205 {
@@ -140,6 +134,12 @@ func CheckTime(fromTarotStatus int, updatedAt time.Time) (toTarotStatus int) {
 		}
 		if fromTarotStatus == 200 {
 			return 202
+		}
+	}
+	// 用户6分钟没有回复
+	if triggerByWaitTime(updatedAt, 360, 360) {
+		if fromTarotStatus == 101 {
+			return fromTarotStatus + 1
 		}
 	}
 	return 0
