@@ -40,6 +40,7 @@ import (
 	"sync"
 	"gopkg.in/h2non/filetype.v1"
 	"tarot/util"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -635,7 +636,7 @@ func (s *Session) AcceptFriend(verifyContent string, vul []*VerifyUser) error {
 	}
 	retcode, err := jc.GetInt("BaseResponse.Ret")
 	if err != nil {
-		util.Notice(`fail to accept friend ` +string(b))
+		errors.New(err.Error() + ` from content:` +string(b))
 		return err
 	}
 	if retcode != 0 {
