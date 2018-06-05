@@ -110,7 +110,7 @@ func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 		return
 	}
 	if msg.MsgType == wxweb.MSG_SYS && myContact.TarotStatus <= 201 {
-		util.Notice(`ignore sys message before tarot status 201`)
+		util.Info(`ignore sys message before tarot status 201`)
 		return
 	}
 	if (myContact.TarotStatus >= 101 && myContact.TarotStatus <= 104) ||
@@ -138,7 +138,7 @@ func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 		}
 	}
 	if toTarotStatus == 0 {
-		util.Notice(fmt.Sprintf(`can not get toTarotStatus from tarot status %d`, myContact.TarotStatus))
+		util.Info(fmt.Sprintf(`can not get toTarotStatus from tarot status %d`, myContact.TarotStatus))
 		if msg.MsgType == wxweb.MSG_SYS && !((myContact.TarotStatus >= 401 && myContact.TarotStatus <= 404) ||
 			myContact.TarotStatus == 504) { // 收到红包
 			sentenceType = `all_hongbao`

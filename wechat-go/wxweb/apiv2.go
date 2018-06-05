@@ -351,7 +351,7 @@ func (api *ApiV2) WebWxSendFile(common *Common, ce *XmlConfig, cookies []*http.C
 	km.Add("lang", common.Lang)
 
 	//uri := common.CgiUrl + "/webwxsendmsgimg?" + km.Encode()
-	uri := fmt.Sprintf(`%s/%s?%s`, common.CgiUrl, message.Path(), km.Encode())
+	uri := fmt.Sprintf(`%s/%s&%s`, common.CgiUrl, message.Path(), km.Encode())
 	msg := &MediaMessage{
 		Type:         message.MessageType(),
 		Content:      "",
