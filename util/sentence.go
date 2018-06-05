@@ -10,7 +10,6 @@ import (
 	"github.com/bitly/go-simplejson"
 	"strings"
 	"github.com/pkg/errors"
-	"hello/util"
 )
 
 var lastSendTime int64
@@ -19,6 +18,9 @@ func SendTarotMsg(nickName, from, to string, sentenceType string) {
 	content, err := getSentence(sentenceType)
 	if err != nil {
 		Notice(content + ` can not get sentence` + err.Error())
+		return
+	}
+	if len(content) ==0 {
 		return
 	}
 	bytes := []byte(content)
@@ -38,7 +40,7 @@ func SendTarotMsg(nickName, from, to string, sentenceType string) {
 	for _, value := range sentences {
 		now := time.Now().Unix()
 		if now <= lastSendTime+1 {
-			util.Notice(`need to wait before send`)
+			Notice(`need to wait before send`)
 			time.Sleep(time.Second * 1)
 		}
 		lastSendTime = now
