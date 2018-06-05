@@ -39,6 +39,7 @@ import (
 	"github.com/songtianyi/rrframework/storage"
 	"sync"
 	"gopkg.in/h2non/filetype.v1"
+	"tarot/util"
 )
 
 const (
@@ -634,6 +635,7 @@ func (s *Session) AcceptFriend(verifyContent string, vul []*VerifyUser) error {
 	}
 	retcode, err := jc.GetInt("BaseResponse.Ret")
 	if err != nil {
+		util.Notice(`fail to accept friend ` +string(b))
 		return err
 	}
 	if retcode != 0 {
