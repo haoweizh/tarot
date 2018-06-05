@@ -635,7 +635,9 @@ func (s *Session) AcceptFriend(verifyContent string, vul []*VerifyUser) error {
 	}
 	retcode, err := jc.GetInt("BaseResponse.Ret")
 	if err != nil {
-		return errors.New(err.Error() + ` from content:` +string(b))
+		content := err.Error() + ` from content:` +string(b)
+		fmt.Println(content)
+		return errors.New(content)
 	}
 	if retcode != 0 {
 		return fmt.Errorf("BaseResponse.Ret %d", retcode)
