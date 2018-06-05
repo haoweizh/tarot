@@ -39,7 +39,6 @@ import (
 	"github.com/songtianyi/rrframework/storage"
 	"sync"
 	"gopkg.in/h2non/filetype.v1"
-	"tarot/util"
 	"github.com/pkg/errors"
 )
 
