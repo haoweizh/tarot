@@ -59,8 +59,11 @@ func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 	switch msg.MsgType {
 	case wxweb.MSG_FV:
 		util.Info(`get msg_fv`)
-		session.AcceptFriend("", []*wxweb.VerifyUser{{Value: msg.RecommendInfo.UserName,
+		err := session.AcceptFriend("", []*wxweb.VerifyUser{{Value: msg.RecommendInfo.UserName,
 			VerifyUserTicket: msg.RecommendInfo.Ticket}})
+		if err != nil {
+			util.Notice(`fail to accept friend verification ` +err.Error())
+		}
 		model.AppBot.Cm.AddUser(&wxweb.User{NickName: msg.RecommendInfo.NickName,
 			UserName: msg.RecommendInfo.UserName, City: msg.RecommendInfo.City, Sex: msg.RecommendInfo.Sex})
 		myContact := model.MyContact{NickName: msg.RecommendInfo.NickName, TarotNickName: model.AppBot.Bot.NickName}
