@@ -14,6 +14,7 @@ var DB *gorm.DB
 var ApplicationEvents *Events
 
 var SendChannel = make(chan TarotEvent, 100)
+var VerifyChannel = make(chan wxweb.ReceivedMessage, 500)
 
 const DBConnection = "host=139.196.84.85 port=5432 user=postgres dbname=postgres password=tarotpostgres sslmode=disable"
 

@@ -34,6 +34,7 @@ func main() {
 	go function.ProcessLogin()
 	model.AppBot.SetAfterLogin(func() (err error) {
 		go function.SendChannelServe()
+		go function.VerifyChannelServe()
 		go function.PlayTarot()
 		function.SyncContact()
 		return nil

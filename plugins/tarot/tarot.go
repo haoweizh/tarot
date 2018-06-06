@@ -58,28 +58,7 @@ func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 	contact := session.Cm.GetContactByUserName(msg.FromUserName)
 	switch msg.MsgType {
 	case wxweb.MSG_FV:
-		util.Info(`get msg_fv`)
-		err := session.AcceptFriend("", []*wxweb.VerifyUser{{Value: msg.RecommendInfo.UserName,
-			VerifyUserTicket: msg.RecommendInfo.Ticket}})
-		if err != nil {
-			util.Notice(`fail to accept friend verification ` +err.Error())
-		}
-		model.AppBot.Cm.AddUser(&wxweb.User{NickName: msg.RecommendInfo.NickName,
-			UserName: msg.RecommendInfo.UserName, City: msg.RecommendInfo.City, Sex: msg.RecommendInfo.Sex})
-		myContact := model.MyContact{NickName: msg.RecommendInfo.NickName, TarotNickName: model.AppBot.Bot.NickName}
-		model.DB.Where("nick_name = ? AND tarot_nick_name = ?", myContact.NickName, model.AppBot.Bot.NickName).
-			First(&myContact)
-		util.Info(fmt.Sprintf("accept user apply with name of %s", myContact.NickName))
-		myContact.TarotStatus = 1
-		if model.DB.NewRecord(&myContact) {
-			util.Info(fmt.Sprintf("new contact added %s of %s", myContact.NickName, model.AppBot.Bot.NickName))
-			model.DB.Create(&myContact)
-		} else {
-			model.DB.Save(&myContact)
-		}
-		event := model.TarotEvent{FromUserName: session.Bot.UserName, ToUserName: msg.RecommendInfo.UserName,
-			SentenceType: `1-101`, NickName: msg.RecommendInfo.NickName, FromTarotStatus: 1, ToTarotStatus: 101}
-		model.SendChannel <- event
+		model.VerifyChannel<-*msg
 		return
 	case wxweb.MSG_TEXT:
 		if strings.Contains(msg.Content, "唧唧复唧唧") {

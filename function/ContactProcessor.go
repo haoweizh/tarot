@@ -6,6 +6,7 @@ import (
 	"tarot/model"
 	"tarot/util"
 	"tarot/plugins/tarot"
+	"tarot/wechat-go/wxweb"
 )
 
 func sendHandler(event *model.TarotEvent) {
@@ -74,5 +75,35 @@ func SendChannelServe() {
 		}
 		model.ApplicationEvents.PutEvent(event.NickName, &event)
 		go sendHandler(&event)
+	}
+}
+
+func VerifyChannelServe()  {
+	for true {
+		msg := <-model.VerifyChannel
+		util.Info(`get msg_fv` + msg.RecommendInfo.NickName)
+		err := model.AppBot.AcceptFriend("", []*wxweb.VerifyUser{{Value: msg.RecommendInfo.UserName,
+			VerifyUserTicket: msg.RecommendInfo.Ticket}})
+		if err != nil {
+			util.Notice(`fail to accept friend verification ` +err.Error())
+			time.Sleep(time.Second * 3600)
+		}
+		model.AppBot.Cm.AddUser(&wxweb.User{NickName: msg.RecommendInfo.NickName,
+			UserName: msg.RecommendInfo.UserName, City: msg.RecommendInfo.City, Sex: msg.RecommendInfo.Sex})
+		myContact := model.MyContact{NickName: msg.RecommendInfo.NickName, TarotNickName: model.AppBot.Bot.NickName}
+		model.DB.Where("nick_name = ? AND tarot_nick_name = ?", myContact.NickName, model.AppBot.Bot.NickName).
+			First(&myContact)
+		util.Info(fmt.Sprintf("accept user apply with name of %s", myContact.NickName))
+		myContact.TarotStatus = 1
+		if model.DB.NewRecord(&myContact) {
+			util.Info(fmt.Sprintf("new contact added %s of %s", myContact.NickName, model.AppBot.Bot.NickName))
+			model.DB.Create(&myContact)
+		} else {
+			model.DB.Save(&myContact)
+		}
+		event := model.TarotEvent{FromUserName: model.AppBot.Bot.UserName, ToUserName: msg.RecommendInfo.UserName,
+			SentenceType: `1-101`, NickName: msg.RecommendInfo.NickName, FromTarotStatus: 1, ToTarotStatus: 101}
+		model.SendChannel <- event
+		time.Sleep(30*time.Second)
 	}
 }
