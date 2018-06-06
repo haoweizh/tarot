@@ -14,7 +14,7 @@ import (
 
 var lastSendTime int64
 
-func SendTarotMsg(nickName, from, to string, sentenceType string) {
+func SendTarotMsg(nickName, from, to string, sentenceType string, fromTarotStatus int) {
 	content, err := getSentence(sentenceType)
 	if err != nil {
 		Notice(content + ` can not get sentence` + err.Error())
@@ -71,7 +71,8 @@ func SendTarotMsg(nickName, from, to string, sentenceType string) {
 			}
 			model.AppBot.SendText(string(bytes), from, to)
 		}
-		tarotLog := &model.TarotLog{TarotNickName: model.AppBot.Bot.NickName, UserNickName: nickName, MsgContent: value}
+		tarotLog := &model.TarotLog{TarotNickName: model.AppBot.Bot.NickName, UserNickName: nickName, MsgContent: value,
+			FromStatus:fromTarotStatus}
 		model.DB.Save(tarotLog)
 	}
 }

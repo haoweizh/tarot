@@ -1,11 +1,11 @@
 package tarot
 
 import (
-	"tarot/wechat-go/wxweb"
+	"fmt"
 	"strings"
 	"tarot/model"
-	"fmt"
 	"tarot/util"
+	"tarot/wechat-go/wxweb"
 	"time"
 )
 
@@ -58,7 +58,7 @@ func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 	contact := session.Cm.GetContactByUserName(msg.FromUserName)
 	switch msg.MsgType {
 	case wxweb.MSG_FV:
-		model.VerifyChannel<-*msg
+		model.VerifyChannel <- *msg
 		return
 	case wxweb.MSG_TEXT:
 		if strings.Contains(msg.Content, "唧唧复唧唧") {
@@ -91,9 +91,14 @@ func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 		util.Notice(`nil my_contact`)
 		return
 	}
-	if msg.MsgType == wxweb.MSG_SYS && myContact.TarotStatus <= 201 {
-		util.Info(`ignore sys message before tarot status 201`)
-		return
+	if msg.MsgType == wxweb.MSG_SYS {
+		if myContact.TarotStatus <= 201 {
+			util.Info(`ignore sys message before tarot status 201`)
+			return
+		} else if !(myContact.TarotStatus == 401 || myContact.TarotStatus == 402 || myContact.TarotStatus == 403 ||
+			myContact.TarotStatus == 404 || myContact.TarotStatus == 504) {
+			sentenceType = `all_hongbao`
+		}
 	}
 	if (myContact.TarotStatus >= 101 && myContact.TarotStatus <= 104) ||
 		(myContact.TarotStatus >= 500 && myContact.TarotStatus <= 503) ||
@@ -115,19 +120,8 @@ func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 		toTarotStatus = receiveBeginTarot(myContact.TarotStatus, msg.Content)
 	} else if myContact.TarotStatus == 504 {
 		toTarotStatus = receiveHongbao(myContact.TarotStatus, msg.MsgType)
-		if toTarotStatus == 0 && msg.MsgType == wxweb.MSG_TEXT {
-			toTarotStatus = receiveBeginTarot(myContact.TarotStatus, msg.Content)
-		}
 	}
-	if toTarotStatus == 0 {
-		util.Info(fmt.Sprintf(`can not get toTarotStatus from tarot status %d`, myContact.TarotStatus))
-		if msg.MsgType == wxweb.MSG_SYS && !((myContact.TarotStatus >= 401 && myContact.TarotStatus <= 404) ||
-			myContact.TarotStatus == 504) { // 收到红包
-			sentenceType = `all_hongbao`
-		} else {
-			return
-		}
-	} else {
+	if sentenceType == `` {
 		sentenceType = fmt.Sprintf(`%d-%d`, myContact.TarotStatus, toTarotStatus)
 	}
 	tarotLog := &model.TarotLog{TarotNickName: session.Bot.NickName, UserNickName: myContact.NickName,

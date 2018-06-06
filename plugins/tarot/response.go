@@ -142,14 +142,14 @@ func CheckTime(fromTarotStatus int, updatedAt time.Time) (toTarotStatus int) {
 			return fromTarotStatus + 1
 		}
 	}
-	return 0
+	return fromTarotStatus
 }
 
 func doNothing(fromTarotStatus int) (toTarotStatus int) {
 	if fromTarotStatus == 212 {
 		return 301
 	}
-	return 0
+	return fromTarotStatus
 }
 
 func receiveHongbao(fromTarotStatus int, msgType int) (toTarotStatus int) {
@@ -165,7 +165,7 @@ func receiveHongbao(fromTarotStatus int, msgType int) (toTarotStatus int) {
 			return 504
 		}
 	}
-	return 0
+	return fromTarotStatus
 }
 
 func receiveCheckImg(fromTarotStatus int, msgType int) (toTarotStatus int) {
@@ -189,7 +189,7 @@ func receiveCheckImg(fromTarotStatus int, msgType int) (toTarotStatus int) {
 			}
 		}
 	}
-	return 0
+	return fromTarotStatus
 }
 
 func receiveBeginTarot(fromTarotStatus int, content string) (toTarotStatus int) {
@@ -208,7 +208,7 @@ func receiveBeginTarot(fromTarotStatus int, content string) (toTarotStatus int) 
 			return 585
 		}
 	}
-	return 0
+	return fromTarotStatus
 }
 
 func receiveAny(fromTarotStatus int) (toTarotStatus int) {
@@ -220,7 +220,7 @@ func receiveAny(fromTarotStatus int) (toTarotStatus int) {
 		(fromTarotStatus >= 600 && fromTarotStatus <= 602) {
 		return 200
 	}
-	return 0
+	return fromTarotStatus
 }
 
 func checkNum(fromTarotStatus int, content string, msgType int) (toTarotStatus int) {
@@ -259,7 +259,7 @@ func checkNum(fromTarotStatus int, content string, msgType int) (toTarotStatus i
 			return 604
 		}
 	}
-	return 0
+	return fromTarotStatus
 }
 
 func parseNum(content string) (num int64, err error) {

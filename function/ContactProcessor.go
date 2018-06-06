@@ -29,7 +29,7 @@ func sendHandler(event *model.TarotEvent) {
 	if bytes[0] == '@' && bytes[1] == '@' { //过滤掉@@开头的userName(微信群)
 		return
 	}
-	util.SendTarotMsg(event.NickName, event.FromUserName, event.ToUserName, event.SentenceType)
+	util.SendTarotMsg(event.NickName, event.FromUserName, event.ToUserName, event.SentenceType, event.FromTarotStatus)
 	model.ApplicationEvents.RemoveEvent(event.NickName)
 }
 
