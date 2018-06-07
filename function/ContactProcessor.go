@@ -43,7 +43,7 @@ func PlayTarot() {
 			var updatedAt time.Time
 			rows.Scan(&nickName, &tarotStatus, &updatedAt)
 			toTarotStatus := tarot.CheckTime(tarotStatus, updatedAt)
-			if toTarotStatus == 0 {
+			if toTarotStatus == tarotStatus {
 				continue
 			}
 			contacts := model.AppBot.Cm.GetContactsByName(nickName)
@@ -55,7 +55,7 @@ func PlayTarot() {
 				model.SendChannel <- event
 			}
 		}
-		time.Sleep(time.Second * 10)
+		time.Sleep(time.Minute * 10)
 	}
 }
 
