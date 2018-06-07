@@ -11,10 +11,6 @@ import (
 
 func sendHandler(event *model.TarotEvent) {
 	util.Info(`try to send event ` + event.NickName + event.SentenceType)
-	//for model.ApplicationEvents.GetUnNilAmount() > 50 {
-	//	util.SocketInfo(fmt.Sprintf(`more than 2 events in nickEvents, sleep 3 seconds`))
-	//	time.Sleep(time.Second * 3)
-	//}
 	if event == nil {
 		return
 	}

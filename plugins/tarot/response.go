@@ -231,6 +231,10 @@ func checkNum(fromTarotStatus int, content string, msgType int) (toTarotStatus i
 		if strings.Contains(content, `[`) && strings.Contains(content, `]`) {
 			others = true
 		} else {
+			content = strings.Replace(content, `一个`, ``, -1)
+			content = strings.Replace(content, `一张`, ``, -1)
+			content = strings.Replace(content, `一次`, ``, -1)
+			content = strings.Replace(content, `一下`, ``, -1)
 			num, err := parseNum(content)
 			if err == nil && num > 0 {
 				if num <= 22 { //用回复包含1～22的数字（及汉字）

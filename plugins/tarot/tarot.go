@@ -78,7 +78,6 @@ func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 			return
 		}
 	}
-	contact = session.Cm.GetContactByUserName(msg.FromUserName)
 	if contact == nil {
 		util.Notice(`nil contact`)
 		return
@@ -97,7 +96,14 @@ func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 			return
 		} else if !(myContact.TarotStatus == 401 || myContact.TarotStatus == 402 || myContact.TarotStatus == 403 ||
 			myContact.TarotStatus == 404 || myContact.TarotStatus == 504) {
-			sentenceType = `all_hongbao`
+			sentenceType = `All除※-All除※`
+			toTarotStatus = myContact.TarotStatus
+			event := model.TarotEvent{FromUserName: session.Bot.UserName, ToUserName: contact.UserName,
+				SentenceType: sentenceType, NickName: contact.NickName, FromTarotStatus: myContact.TarotStatus,
+				ToTarotStatus: toTarotStatus}
+			util.Info(fmt.Sprintf("%s receive hongbao %s %d %s", contact.NickName, sentenceType, msg.MsgType, msg.Content))
+			model.SendChannel <- event
+			return
 		}
 	}
 	if (myContact.TarotStatus >= 101 && myContact.TarotStatus <= 104) ||
@@ -121,9 +127,7 @@ func listenCmd(session *wxweb.Session, msg *wxweb.ReceivedMessage) {
 	} else if myContact.TarotStatus == 504 {
 		toTarotStatus = receiveHongbao(myContact.TarotStatus, msg.MsgType)
 	}
-	if sentenceType == `` {
-		sentenceType = fmt.Sprintf(`%d-%d`, myContact.TarotStatus, toTarotStatus)
-	}
+	sentenceType = fmt.Sprintf(`%d-%d`, myContact.TarotStatus, toTarotStatus)
 	tarotLog := &model.TarotLog{TarotNickName: session.Bot.NickName, UserNickName: myContact.NickName,
 		MsgType: msg.MsgType, MsgContent: msg.Content, FromStatus: myContact.TarotStatus, ToStatus: toTarotStatus}
 	model.DB.Save(tarotLog)
