@@ -23,7 +23,6 @@ type TarotSentence struct {
 	UpdatedAt        time.Time
 	Content          string
 	SentenceType     string
-	SentenceScenario int
 }
 
 type TarotEvent struct {
