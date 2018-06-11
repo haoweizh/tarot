@@ -62,10 +62,10 @@ func CheckTime(fromTarotStatus int, updatedAt time.Time) (toTarotStatus int) {
 	}
 	// 进入该状态满7天，接下来的21点～24点间随机择时
 	if triggerBySecondOfDay(updatedAt, 604800, 75600, 86400) {
-		if fromTarotStatus == 504 || fromTarotStatus == 594 {
+		if fromTarotStatus == 504 || fromTarotStatus==584 || fromTarotStatus == 594 {
 			return 514
 		}
-		if fromTarotStatus == 505 || fromTarotStatus == 595 {
+		if fromTarotStatus == 505 || fromTarotStatus==585 || fromTarotStatus == 595 {
 			return 515
 		}
 	}
