@@ -14,7 +14,8 @@ func triggerBySecondOfDay(updatedAt time.Time, waitSeconds int64, startSecond, e
 	if nowUnixSeconds-updatedAt.Unix() < waitSeconds {
 		return false
 	}
-	if nowUnixSeconds-updatedAt.Unix() > waitSeconds+int64(endSecond) {
+	updateDay := updatedAt.Unix() - updatedAt.Unix() % 86400
+	if nowUnixSeconds-updateDay > waitSeconds+int64(endSecond) {
 		return true
 	}
 	nowSecond := time.Now().Hour()*3600 + time.Now().Minute()*60 + time.Now().Second()
