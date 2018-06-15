@@ -36,24 +36,24 @@ func triggerByWaitTime(updatedAt time.Time, waitSeconds, endSeconds int64) bool 
 }
 
 func CheckTime(fromTarotStatus int, updatedAt time.Time) (toTarotStatus int) {
-	// 进入该状态满30天，接下来的21点～24点间随机择时
-	if triggerBySecondOfDay(updatedAt, 2592000, 75600, 86400) {
-		if fromTarotStatus == 600 {
-			return 601
-		}
-	}
-	// 进入该状态满30天
-	if triggerByWaitTime(updatedAt, 2592000, 2592000) {
-		if fromTarotStatus == 601 {
-			return 602
-		}
-	}
-	// 进入该状态满10天，接下来的21点～24点间随机择时
-	if triggerBySecondOfDay(updatedAt, 864000, 75600, 86400) {
-		if fromTarotStatus >= 530 && fromTarotStatus <= 533 {
-			return 600
-		}
-	}
+	//// 进入该状态满30天，接下来的21点～24点间随机择时
+	//if triggerBySecondOfDay(updatedAt, 2592000, 75600, 86400) {
+	//	if fromTarotStatus == 600 {
+	//		return 601
+	//	}
+	//}
+	//// 进入该状态满30天
+	//if triggerByWaitTime(updatedAt, 2592000, 2592000) {
+	//	if fromTarotStatus == 601 {
+	//		return 602
+	//	}
+	//}
+	//// 进入该状态满10天，接下来的21点～24点间随机择时
+	//if triggerBySecondOfDay(updatedAt, 864000, 75600, 86400) {
+	//	if fromTarotStatus >= 530 && fromTarotStatus <= 533 {
+	//		return 600
+	//	}
+	//}
 	// 进入该状态满7天，接下来的21点～24点间随机择时
 	if triggerBySecondOfDay(updatedAt, 604800, 75600, 86400) {
 		if fromTarotStatus == 504 || fromTarotStatus==584 || fromTarotStatus == 594 {
@@ -63,73 +63,73 @@ func CheckTime(fromTarotStatus int, updatedAt time.Time) (toTarotStatus int) {
 			return 515
 		}
 	}
-	// 进入该状态满4天，接下来的21点～24点间随机择时
-	if triggerBySecondOfDay(updatedAt, 345600, 75600, 86400) {
-		if fromTarotStatus == 524 || fromTarotStatus == 525 {
-			return 600
-		}
-	}
-	// 进入该状态满3天，接下来的21点～24点间随机择时
-	if triggerBySecondOfDay(updatedAt, 259200, 75600, 86400) {
-		if (fromTarotStatus >= 520 && fromTarotStatus <= 523) || fromTarotStatus == 514 || fromTarotStatus == 515 {
-			return fromTarotStatus + 10
-		}
-	}
-	// 进入该状态满48小时，接下来的21点～24点间随机择时
-	if triggerBySecondOfDay(updatedAt, 172800, 75600, 86400) {
-		if (fromTarotStatus >= 500 && fromTarotStatus <= 503) || (fromTarotStatus >= 510 && fromTarotStatus <= 513) {
-			return fromTarotStatus + 10
-		}
-	}
-	// 进入该状态满12小时后
-	if triggerByWaitTime(updatedAt, 43200, 43200) {
-		if fromTarotStatus == 603 || fromTarotStatus == 604 {
-			return 500
-		}
-	}
-	// 用户3小时没有回复
-	if triggerByWaitTime(updatedAt, 10800, 10800) {
-		if fromTarotStatus == 104 {
-			return 501
-		}
-		if fromTarotStatus == 205 {
-			return 502
-		}
-		if fromTarotStatus == 305 {
-			return 503
-		}
-	}
-	// 用户20～30分钟没有回复
-	if triggerByWaitTime(updatedAt, 1200, 1800) {
-		if fromTarotStatus == 401 {
-			return 402
-		}
-	}
-	// 用户8～12分钟没有回复
-	if triggerByWaitTime(updatedAt, 480, 720) {
-		if fromTarotStatus == 102 || fromTarotStatus == 103 || (fromTarotStatus >= 201 && fromTarotStatus <= 204) ||
-			(fromTarotStatus >= 301 && fromTarotStatus <= 304) || fromTarotStatus == 402 {
-			return fromTarotStatus + 1
-		}
-		if (fromTarotStatus >= 206 && fromTarotStatus <= 209) || fromTarotStatus == 311 || fromTarotStatus == 312 {
-			return 203
-		}
-		if fromTarotStatus == 210 || fromTarotStatus == 211 {
-			return 502
-		}
-		if fromTarotStatus >= 306 && fromTarotStatus <= 310 {
-			return 303
-		}
-		if fromTarotStatus == 313 {
-			return 304
-		}
-		if fromTarotStatus == 403 || fromTarotStatus == 404 {
-			return 504
-		}
-		if fromTarotStatus == 200 {
-			return 202
-		}
-	}
+	//// 进入该状态满4天，接下来的21点～24点间随机择时
+	//if triggerBySecondOfDay(updatedAt, 345600, 75600, 86400) {
+	//	if fromTarotStatus == 524 || fromTarotStatus == 525 {
+	//		return 600
+	//	}
+	//}
+	//// 进入该状态满3天，接下来的21点～24点间随机择时
+	//if triggerBySecondOfDay(updatedAt, 259200, 75600, 86400) {
+	//	if (fromTarotStatus >= 520 && fromTarotStatus <= 523) || fromTarotStatus == 514 || fromTarotStatus == 515 {
+	//		return fromTarotStatus + 10
+	//	}
+	//}
+	//// 进入该状态满48小时，接下来的21点～24点间随机择时
+	//if triggerBySecondOfDay(updatedAt, 172800, 75600, 86400) {
+	//	if (fromTarotStatus >= 500 && fromTarotStatus <= 503) || (fromTarotStatus >= 510 && fromTarotStatus <= 513) {
+	//		return fromTarotStatus + 10
+	//	}
+	//}
+	//// 进入该状态满12小时后
+	//if triggerByWaitTime(updatedAt, 43200, 43200) {
+	//	if fromTarotStatus == 603 || fromTarotStatus == 604 {
+	//		return 500
+	//	}
+	//}
+	//// 用户3小时没有回复
+	//if triggerByWaitTime(updatedAt, 10800, 10800) {
+	//	if fromTarotStatus == 104 {
+	//		return 501
+	//	}
+	//	if fromTarotStatus == 205 {
+	//		return 502
+	//	}
+	//	if fromTarotStatus == 305 {
+	//		return 503
+	//	}
+	//}
+	//// 用户20～30分钟没有回复
+	//if triggerByWaitTime(updatedAt, 1200, 1800) {
+	//	if fromTarotStatus == 401 {
+	//		return 402
+	//	}
+	//}
+	//// 用户8～12分钟没有回复
+	//if triggerByWaitTime(updatedAt, 480, 720) {
+	//	if fromTarotStatus == 102 || fromTarotStatus == 103 || (fromTarotStatus >= 201 && fromTarotStatus <= 204) ||
+	//		(fromTarotStatus >= 301 && fromTarotStatus <= 304) || fromTarotStatus == 402 {
+	//		return fromTarotStatus + 1
+	//	}
+	//	if (fromTarotStatus >= 206 && fromTarotStatus <= 209) || fromTarotStatus == 311 || fromTarotStatus == 312 {
+	//		return 203
+	//	}
+	//	if fromTarotStatus == 210 || fromTarotStatus == 211 {
+	//		return 502
+	//	}
+	//	if fromTarotStatus >= 306 && fromTarotStatus <= 310 {
+	//		return 303
+	//	}
+	//	if fromTarotStatus == 313 {
+	//		return 304
+	//	}
+	//	if fromTarotStatus == 403 || fromTarotStatus == 404 {
+	//		return 504
+	//	}
+	//	if fromTarotStatus == 200 {
+	//		return 202
+	//	}
+	//}
 	// 用户6分钟没有回复
 	if triggerByWaitTime(updatedAt, 360, 360) {
 		if fromTarotStatus == 101 {

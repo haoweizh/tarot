@@ -18,4 +18,4 @@ var VerifyChannel = make(chan wxweb.ReceivedMessage, 500)
 
 //const DBConnection = "host=139.196.84.85 port=5432 user=postgres dbname=postgres password=tarotpostgres sslmode=disable"
 
-const DBConnection = "host=simonisgood.cfxtvaff0nlc.ap-northeast-1.rds.amazonaws.com port=54322 user=crook dbname=andrew password=zaq12WSX sslmode=disable"
+const DBConnection = "dbconnection: host=simonisgood.cfxtvaff0nlc.ap-northeast-1.rds.amazonaws.com port=54322 user=crook dbname=mydb password=zaq12WSX sslmode=disable"
