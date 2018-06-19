@@ -11,14 +11,24 @@ import (
 
 func triggerBySecondOfDay(updatedAt time.Time, waitSeconds int64, startSecond, endSecond int) bool {
 	nowUnixSeconds := time.Now().Unix()
-	if nowUnixSeconds-updatedAt.Unix() < waitSeconds {
+	if nowUnixSeconds-updatedAt.Unix() < waitSeconds 
+	{
 		return false
+	} else
+	{
+		// 已经超过waitSeconds,再判断当前时间是否在startSecond至endSecond之间
+		nowSecond := time.Now().Hour()*3600 + time.Now().Minute()*60 + time.Now().Second()
+		// 当nowSecond未到startSecond之前,右边为负数,大于号一定成立,
+		// 当nowSecond超过startSecond之后,随机不成立(随着nowSecond越来越大,不成立的几率越大)
+		// 如果一直不成立,简单起见,只能再等第二天同样的时间段了,因此startSecond到endSecond的间隔不宜太小
+		if rand.Intn(endSecond-startSecond+1) > nowSecond-startSecond 
+		{
+			return false
+		} else
+		{
+			return true
+		}
 	}
-	nowSecond := time.Now().Hour()*3600 + time.Now().Minute()*60 + time.Now().Second()
-	if rand.Intn(endSecond-startSecond+1) > nowSecond-startSecond {
-		return false
-	}
-	return true
 }
 
 func triggerByWaitTime(updatedAt time.Time, waitSeconds, endSeconds int64) bool {
