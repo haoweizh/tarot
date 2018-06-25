@@ -487,7 +487,16 @@ func (s *Session) SendText(msg, from, to string) (string, string, error) {
 	if err != nil {
 		return "", "", err
 	}
-	jc, _ := rrconfig.LoadJsonConfigFromBytes(b)
+        // bug fixed by llh - avoid jc to be nil to crash the system
+	jc, loadErr := rrconfig.LoadJsonConfigFromBytes(b)
+        if loadErr != nil || jc == nil{
+               if loadErr != nil{
+                      logs.Error(loadErr)
+               } 
+  
+               return "", "", fmt.Errorf("Fail to load Json WebWxSendMsg = %s", b)
+        }
+
 	ret, _ := jc.GetInt("BaseResponse.Ret")
 	if ret != 0 {
 		errMsg, _ := jc.GetString("BaseResponse.ErrMsg")

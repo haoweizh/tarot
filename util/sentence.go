@@ -69,7 +69,10 @@ func SendTarotMsg(nickName, from, to string, sentenceType string, fromTarotStatu
 					bytes[index] = '\n'
 				}
 			}
-			model.AppBot.SendText(string(bytes), from, to)
+			_, _, err = model.AppBot.SendText(string(bytes), from, to)
+                        if err != nil{
+                               Info(`SendText failed with error ` + err.Error())
+                        }
 		}
 		tarotLog := &model.TarotLog{TarotNickName: model.AppBot.Bot.NickName, UserNickName: nickName, MsgContent: value,
 			FromStatus:fromTarotStatus}
