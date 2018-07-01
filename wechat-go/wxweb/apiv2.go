@@ -343,7 +343,7 @@ func (api *ApiV2) WebWxGetContact(common *Common, ce *XmlConfig, cookies []*http
 
 // WebWxSendMsgImg: webwxsendmsgimg api
 func (api *ApiV2) WebWxSendFile(common *Common, ce *XmlConfig, cookies []*http.Cookie,
-	from, to, media string, message Msg) {
+	from, to, media string, message Msg) (string, string, error){
 	km := url.Values{}
 	km.Add("pass_ticket", ce.PassTicket)
 	km.Add("fun", "async")
@@ -383,6 +383,23 @@ func (api *ApiV2) WebWxSendFile(common *Common, ce *XmlConfig, cookies []*http.C
 		fmt.Println(err)
 	}
 	fmt.Println(string(responses))
+        jc, loadErr := rrconfig.LoadJsonConfigFromBytes(responses)
+        if loadErr != nil || jc == nil{
+		if loadErr != nil{
+                	fmt.Println(loadErr) 
+		} 
+  
+               return "", "", fmt.Errorf("Fail to load Json WebWxSendMsg = %s", b)
+        }
+
+	ret, _ := jc.GetInt("BaseResponse.Ret")
+	if ret != 0 {
+		errMsg, _ := jc.GetString("BaseResponse.ErrMsg")
+		return "", "", fmt.Errorf("WebWxSendMsg Ret=%d, ErrMsg=%s", ret, errMsg)
+	}
+	msgID, _ := jc.GetString("MsgID")
+	localID, _ := jc.GetString("LocalID")
+	return msgID, localID, nil
 }
 
 // WebWxSendMsgImg: webwxsendmsgimg api

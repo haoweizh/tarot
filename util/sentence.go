@@ -59,20 +59,36 @@ func SendTarotMsg(nickName, from, to string, sentenceType string, fromTarotStatu
 		} else if strings.Contains(value, `tarotfile`) {
 			bytes := []byte(value)
 			path := bytes[5:]
-			model.AppBot.SendFile(`./resource/`+string(path), from, to)
+                        for retries:=0; retries < 3; retries++ {
+				_, _, err = model.AppBot.SendFile(`./resource/`+string(path), from, to)
+                                if err != nil {
+                                        Info(`SendFile failed with error ` + err.Error())
+                                        time.Sleep(5)
+                                } else {
+                                        break
+                                }
+                        }
+
 		} else if strings.Contains(value, `tarotjump`) {
 			// do nothing
-		} else {
+		} else 
+		{
 			bytes := []byte(value)
-			for index, letter := range bytes {
-				if letter == '#' {
+			for index, letter := range bytes { 
+				if letter == '#' { 
 					bytes[index] = '\n'
 				}
 			}
-			_, _, err = model.AppBot.SendText(string(bytes), from, to)
-                        if err != nil{
-                               Info(`SendText failed with error ` + err.Error())
-                        }
+		        
+			for retries:=0; retries < 3; retries++ {
+				_, _, err = model.AppBot.SendText(string(bytes), from, to)
+                        	if err != nil {
+                        		Info(`SendText failed with error ` + err.Error())
+					time.Sleep(5)
+                        	} else {
+					break
+				}
+			}
 		}
 		tarotLog := &model.TarotLog{TarotNickName: model.AppBot.Bot.NickName, UserNickName: nickName, MsgContent: value,
 			FromStatus:fromTarotStatus}

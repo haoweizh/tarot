@@ -522,14 +522,14 @@ func (s *Session) getMediaFromPath(path string) (mediaId string) {
 	}
 }
 
-func (s *Session) SendFile(path, from, to string) {
+func (s *Session) SendFile(path, from, to string) (string, string, error){
 	ss := strings.Split(path, "/")
 	buf, err := ioutil.ReadFile(path)
 	mediaId := s.getMediaFromPath(path)
 	if mediaId == `` {
 		if err != nil {
 			logs.Error(err)
-			return
+			return "", "", err
 		}
 		mediaId, err = s.Api.WebWxUploadMedia(s.WxWebCommon, s.WxWebXcg, s.GetCookies(), ss[len(ss)-1], buf, from, to)
 		s.UploadPathId[path] = mediaId
@@ -556,9 +556,9 @@ func (s *Session) SendFile(path, from, to string) {
 	}
 	if err != nil {
 		logs.Error(err)
-		return
+		return "", "", err
 	}
-	s.Api.WebWxSendFile(s.WxWebCommon, s.WxWebXcg, s.GetCookies(), from, to, mediaId, msg)
+	return s.Api.WebWxSendFile(s.WxWebCommon, s.WxWebXcg, s.GetCookies(), from, to, mediaId, msg)
 }
 
 // SendImgFromBytes: send image from mem

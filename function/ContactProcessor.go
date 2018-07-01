@@ -31,8 +31,13 @@ func sendHandler(event *model.TarotEvent) {
 
 func PlayTarot() {
 	for true {
-		rows, err := model.DB.Table("my_contacts").Select("nick_name,tarot_status,updated_at").
-			Where("tarot_nick_name = ?", model.AppBot.Bot.NickName).Rows()
+		records := model.DB.Table("my_contacts").Select("nick_name,tarot_status,updated_at").
+			Where("tarot_nick_name = ?", model.AppBot.Bot.NickName)
+                if records == nil{
+                        util.Info(fmt.Sprintf("Can not find nick_name %s in db", model.AppBot.Bot.NickName))
+                        continue
+                }
+                rows, err := records.Rows()
 		if err != nil {
 			util.Notice(`db error:` + fmt.Sprint(err))
 			continue
